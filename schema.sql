@@ -16,4 +16,4 @@ CREATE TABLE IF NOT EXISTS frames (
 );
 
 INSERT OR IGNORE INTO settings (id, active, maintenanceMessage, activeEventName) 
-VALUES ('global', 1, 'Studio Foto sedang dinonaktifkan sementara. Nantikan event spesial berikutnya!', 'Event Spesial');
+VALUES ('global', 1, 'Studio Foto sedang dinonaktifkan sementara. Nantikan event spesial berikutnya!', 'Peringatan HUT RI ke-81 Pesona Cilebut 1');

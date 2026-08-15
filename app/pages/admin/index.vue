@@ -2,6 +2,7 @@
   <div class="min-h-screen p-4 md:p-8" style="background-image: url('/bg.webp'); background-size: cover; background-attachment: fixed;">
     <!-- Authentication Wrapper -->
     <div v-if="!isAuthenticated" class="max-w-md mx-auto mt-20 p-8 border-4 border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-6 text-center">
+      <img src="/logomerah81.png" alt="Logo HUT RI 81" class="h-16 w-auto mx-auto object-contain" />
       <h2 class="font-display uppercase tracking-widest text-3xl text-black border-b-4 border-black pb-4">Akses Terkunci</h2>
       <p class="font-serif italic font-bold text-lg text-black">Masukkan kata sandi untuk masuk ke halaman admin photobooth.</p>
       <form @submit.prevent="handleLogin" class="flex flex-col gap-4">
@@ -21,14 +22,17 @@
 
       <!-- Title section -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b-4 border-black">
-        <div>
-          <h1 class="text-2xl sm:text-4xl font-display uppercase tracking-widest flex items-center gap-3 text-black">
-            <Camera class="h-8 w-8 text-black shrink-0" />
-            Kelola Fitur & Template
-          </h1>
-          <p class="font-serif italic font-bold text-black mt-2 text-lg">
-            Atur status event, serta unggah template bingkai foto PNG dengan sistem deteksi lubang transparan otomatis.
-          </p>
+        <div class="flex items-center gap-4">
+          <img src="/logomerah81.png" alt="Logo HUT RI 81" class="h-14 w-auto object-contain hidden sm:block" />
+          <div>
+            <h1 class="text-2xl sm:text-4xl font-display uppercase tracking-widest flex items-center gap-3 text-black">
+              <Camera class="h-8 w-8 text-black shrink-0" />
+              Kelola Fitur & Template
+            </h1>
+            <p class="font-serif italic font-bold text-black mt-2 text-lg">
+              Atur status event, serta unggah template bingkai foto PNG dengan sistem deteksi lubang transparan otomatis.
+            </p>
+          </div>
         </div>
         <button class="bg-black text-[#f9f6f0] border-4 border-black flex items-center gap-2 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] cursor-pointer text-sm px-6 py-3 font-display uppercase tracking-widest hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all" @click="handleOpenAddFrame">
           <Plus class="h-5 w-5" /> Tambah Template
@@ -70,7 +74,7 @@
                 type="text"
                 id="activeEventName"
                 v-model="settings.activeEventName"
-                placeholder="Contoh: Event Ulang Tahun Intan ke-21"
+                placeholder="Contoh: Peringatan HUT RI ke-81 Pesona Cilebut 1"
                 class="w-full px-4 py-3 bg-white border-4 border-black text-black placeholder-gray-500 focus:outline-none focus:ring-0 font-serif italic font-bold"
                 :required="settings.active"
               />
@@ -169,7 +173,7 @@
                 <label class="font-display uppercase tracking-widest text-black">Nama Bingkai Foto</label>
                 <input
                   type="text"
-                  placeholder="Contoh: Frame Ulang Tahun Intan (4 Strip PNG)"
+                  placeholder="Contoh: Frame Kemerdekaan RI 81 (4 Strip PNG)"
                   v-model="frameName"
                   class="w-full px-4 py-3 bg-white border-4 border-black text-black focus:outline-none focus:ring-0 font-serif italic font-bold"
                   required

@@ -1,20 +1,20 @@
 <template>
-  <div class="bg-[#f9f6f0] border-2 sm:border-4 border-black p-2 sm:p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative w-full max-w-[280px] sm:max-w-md mx-auto aspect-square md:aspect-[4/3] overflow-hidden">
+  <div class="bg-paper border-3 sm:border-4 border-black p-2.5 sm:p-4 shadow-brutal flex flex-col relative w-full max-w-[280px] sm:max-w-md mx-auto aspect-square md:aspect-[4/3] overflow-hidden">
     <!-- Title Bar -->
-    <div class="flex items-center justify-between mb-2 sm:mb-3 font-display uppercase tracking-widest text-black text-xs sm:text-sm border-b-2 sm:border-b-4 border-black pb-2">
+    <div class="flex items-center justify-between mb-2 sm:mb-3 font-display uppercase tracking-widest text-black text-xs sm:text-sm border-b-2 sm:border-b-3 border-black pb-2">
       <div class="flex items-center gap-2">
-        <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-black animate-pulse" />
+        <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
         <span>
-          {{ showConfirm ? "KONFIRMASI FOTO" : "LIVE PREVIEW" }}
+          {{ showConfirm ? "SESUAIKAN FOTO" : "KAMERA LIVE" }}
         </span>
       </div>
-      <span v-if="showVideo || showConfirm" class="bg-black text-[#f9f6f0] px-2 py-1 font-display text-[10px] sm:text-xs">
+      <span v-if="showVideo || showConfirm" class="bg-black text-gold-light px-2 py-0.5 font-display text-[10px] sm:text-xs">
         SLOT {{ photoIndex + 1 }} / {{ capturedPhotos.length }}
       </span>
     </div>
 
     <!-- Screen Area -->
-    <div class="flex-1 overflow-hidden relative flex items-center justify-center border-2 sm:border-4 border-black">
+    <div class="flex-1 overflow-hidden relative flex items-center justify-center border-2 sm:border-3 border-black bg-black">
       <!-- Video stream always mounted, visibility toggled -->
       <video
         ref="videoRef"
@@ -38,35 +38,30 @@
       />
 
       <!-- Standby/Error placeholder when neither video nor captured image should show -->
-      <div v-if="!showVideo && !confirmPhoto" class="flex flex-col items-center justify-center p-4 sm:p-8 text-center text-black font-serif absolute inset-0">
-        <div v-if="state === 'REQUESTING_CAMERA'" class="flex flex-col items-center gap-2 sm:gap-3">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 border-4 border-black border-t-transparent animate-spin" />
-          <p class="font-bold italic text-xs sm:text-sm">Menghubungkan ke kamera...</p>
+      <div v-if="!showVideo && !confirmPhoto" class="flex flex-col items-center justify-center p-4 sm:p-8 text-center text-white font-sans absolute inset-0 bg-[#18181B]">
+        <div v-if="state === 'REQUESTING_CAMERA'" class="flex flex-col items-center gap-3">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p class="font-bold text-xs sm:text-sm">Menghubungkan ke kamera...</p>
         </div>
-        <div v-else-if="state === 'CAMERA_ERROR'" class="flex flex-col items-center gap-2 sm:gap-3 text-black">
-          <svg class="w-8 h-8 sm:w-12 sm:h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <p class="font-bold italic text-xs sm:text-sm">Akses Kamera Gagal</p>
-          <p class="text-[10px] sm:text-xs italic max-w-[250px] leading-relaxed">
-            Pastikan izin kamera telah diberikan dan kamera tidak sedang digunakan aplikasi lain.
+        <div v-else-if="state === 'CAMERA_ERROR'" class="flex flex-col items-center gap-2 sm:gap-3 text-white">
+          <AlertTriangle class="w-8 h-8 text-primary" />
+          <p class="font-bold text-xs sm:text-sm text-primary-light">Akses Kamera Gagal</p>
+          <p class="text-[10px] sm:text-xs text-white/70 max-w-[250px] leading-relaxed">
+            Pastikan izin kamera diizinkan di browser Anda, atau gunakan opsi Unggah File.
           </p>
         </div>
         <div v-else class="flex flex-col items-center gap-2 sm:gap-3">
-          <div class="w-12 h-12 sm:w-16 sm:h-16 bg-transparent flex items-center justify-center border-4 border-black">
-            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+          <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 flex items-center justify-center border-2 border-white/30 rounded-lg">
+            <Camera class="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <p class="font-bold italic text-xs sm:text-sm">Kamera Belum Aktif</p>
-          <p class="text-[10px] sm:text-xs italic leading-relaxed">Kamera akan aktif setelah Anda menekan tombol di sebelah kanan.</p>
+          <p class="font-bold text-xs sm:text-sm">Kamera Siap</p>
+          <p class="text-[10px] sm:text-xs text-white/60 leading-relaxed">Tekan tombol Ambil Foto untuk memulai.</p>
         </div>
       </div>
 
       <!-- Countdown Overlay -->
-      <div v-if="showCountdown" class="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
-        <div class="text-[#f9f6f0] font-display text-[6rem] sm:text-[10rem] animate-ping">
+      <div v-if="showCountdown" class="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
+        <div class="text-gold-light font-display text-[7rem] sm:text-[10rem] animate-ping">
           {{ countdown }}
         </div>
       </div>
@@ -79,6 +74,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
+import { Camera, AlertTriangle } from 'lucide-vue-next';
 import type { PhotoboothState } from '~/utils/photobooth/types';
 
 const props = defineProps<{
@@ -130,10 +126,19 @@ const dragState = {
 const handleDragStart = (e: MouseEvent | TouchEvent) => {
   if (!confirmPhoto.value || (props.photoScale || 1.0) <= 1.0) return;
   
-  isDragging.value = true;
-  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
-  const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
+  let clientX = 0;
+  let clientY = 0;
+  if ('touches' in e) {
+    const touch = e.touches[0];
+    if (!touch) return;
+    clientX = touch.clientX;
+    clientY = touch.clientY;
+  } else {
+    clientX = (e as MouseEvent).clientX;
+    clientY = (e as MouseEvent).clientY;
+  }
   
+  isDragging.value = true;
   dragState.startX = clientX;
   dragState.startY = clientY;
   dragState.initialOffsetX = props.photoOffsetX || 0;
@@ -153,13 +158,21 @@ const handleDragMove = (e: MouseEvent | TouchEvent) => {
   if (!isDragging.value) return;
   if ('touches' in e && e.cancelable) e.preventDefault();
   
-  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
-  const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
+  let clientX = 0;
+  let clientY = 0;
+  if ('touches' in e) {
+    const touch = e.touches[0];
+    if (!touch) return;
+    clientX = touch.clientX;
+    clientY = touch.clientY;
+  } else {
+    clientX = (e as MouseEvent).clientX;
+    clientY = (e as MouseEvent).clientY;
+  }
   
   const dx = clientX - dragState.startX;
   const dy = clientY - dragState.startY;
   
-  // WebcamPreview is mirrored, so invert dx
   const px = dragState.initialOffsetX - (dx / dragState.containerWidth) * 100;
   const py = dragState.initialOffsetY + (dy / dragState.containerHeight) * 100;
   

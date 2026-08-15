@@ -1,20 +1,16 @@
 <template>
-  <div class="bg-[#f9f6f0] border-2 sm:border-4 border-black p-2 sm:p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative w-full max-w-[280px] sm:max-w-md mx-auto">
+  <div class="bg-paper border-3 sm:border-4 border-black p-3 sm:p-5 shadow-brutal flex flex-col relative w-full max-w-[280px] sm:max-w-md mx-auto">
     <!-- Title Bar with Bulk Upload Action -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 sm:mb-4 font-display uppercase tracking-widest text-black text-xs sm:text-sm border-b-2 sm:border-b-4 border-black pb-2 sm:pb-3">
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-black shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4-4m4 4v12" />
-        </svg>
-        <span>UNGGAH {{ slotsCount }} FOTO ANDA</span>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 font-display uppercase tracking-widest text-black text-xs sm:text-sm border-b-2 sm:border-b-3 border-black pb-2 sm:pb-3">
+      <div class="flex items-center gap-1.5">
+        <FolderUp class="w-4 h-4 text-black shrink-0" />
+        <span>UNGGAH {{ slotsCount }} FOTO</span>
       </div>
 
       <!-- Bulk Multi-Upload Button -->
-      <label class="cursor-pointer bg-black text-[#f9f6f0] px-3 py-1.5 font-display uppercase border-2 border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5 active:translate-y-[2px] active:translate-x-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        <span>Pilih {{ slotsCount }} Foto Sekaligus</span>
+      <label class="cursor-pointer bg-primary hover:bg-primary-dark text-white px-2.5 py-1 font-display uppercase border-2 border-black shadow-brutal-sm transition-all flex items-center justify-center gap-1.5 active:translate-x-0.5 active:translate-y-0.5 text-xs">
+        <Plus class="w-3.5 h-3.5" />
+        <span>Pilih Sekaligus</span>
         <input
           type="file"
           multiple
@@ -25,16 +21,16 @@
       </label>
     </div>
 
-    <p class="text-xs text-black mb-4 leading-relaxed font-serif italic font-bold">
-      Pilih {{ slotsCount }} foto terbaik dari galeri perangkat Anda untuk disusun ke dalam photostrip bingkai. Anda dapat mengunggah satu-per-satu atau sekaligus.
+    <p class="text-xs text-black/80 mb-3 leading-relaxed font-sans font-semibold">
+      Pilih {{ slotsCount }} foto terbaik dari galeri perangkatmu.
     </p>
 
     <!-- Grid of Dynamic Upload Slots -->
-    <div class="grid grid-cols-2 gap-3.5 flex-1">
+    <div class="grid grid-cols-2 gap-2.5 sm:gap-3.5 flex-1">
       <div
         v-for="(photoUrl, idx) in photos"
         :key="idx"
-        class="relative aspect-square overflow-hidden border-4 border-dashed border-black/30 bg-[#e8e4db] hover:bg-[#d8d4cb] transition-colors flex flex-col items-center justify-center p-2 cursor-pointer group"
+        class="relative aspect-square overflow-hidden border-3 border-dashed border-black/40 bg-white hover:bg-gold-light/20 transition-colors flex flex-col items-center justify-center p-2 cursor-pointer group shadow-sm"
         @click="!photoUrl ? triggerFileInput(idx) : null"
       >
         <!-- Hidden file input -->
@@ -54,30 +50,28 @@
           />
           
           <!-- Hover overlay to change or delete -->
-          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+          <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
             <button
               @click.stop="triggerFileInput(idx)"
-              class="bg-black text-white font-display tracking-widest text-[10px] px-2 py-1 shadow-sm transition-all uppercase"
+              class="bg-white text-black font-display tracking-widest text-[10px] px-2.5 py-1 border border-black shadow-sm uppercase w-full"
             >
-              Ubah Foto
+              Ganti
             </button>
             <button
               @click.stop="() => $emit('photoRemoved', idx)"
-              class="bg-red-600 text-white font-display tracking-widest text-[10px] px-2 py-1 shadow-sm transition-all uppercase"
+              class="bg-primary text-white font-display tracking-widest text-[10px] px-2.5 py-1 border border-black shadow-sm uppercase w-full"
             >
               Hapus
             </button>
           </div>
         </div>
 
-        <div v-else class="flex flex-col items-center gap-2 text-black text-center">
-          <div class="w-8 h-8 flex items-center justify-center border-4 border-black group-hover:scale-105 transition-transform bg-transparent">
-            <svg class="w-4 h-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
+        <div v-else class="flex flex-col items-center gap-1.5 text-black text-center">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center border-2 border-black group-hover:scale-110 transition-transform bg-paper-dark rounded-full">
+            <Plus class="w-4 h-4 text-black" />
           </div>
-          <span class="text-[11px] font-display tracking-widest uppercase text-black">Foto {{ idx + 1 }}</span>
-          <span class="text-[9px] font-serif italic text-black leading-tight max-w-[90px] block font-bold">Klik untuk memilih</span>
+          <span class="text-[11px] font-display tracking-wider uppercase text-black">Foto #{{ idx + 1 }}</span>
+          <span class="text-[9px] font-sans text-black/60 block font-bold">Pilih Galeri</span>
         </div>
       </div>
     </div>
@@ -86,6 +80,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { FolderUp, Plus } from 'lucide-vue-next';
 
 const props = defineProps<{
   photos: string[];
@@ -110,15 +105,16 @@ const handleFileChange = (index: number, e: Event) => {
   const files = target.files;
   if (files && files.length > 0) {
     const file = files[0];
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        emit('photoUploaded', index, event.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          emit('photoUploaded', index, event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   }
-  // reset input so the same file can be selected again
   target.value = '';
 };
 
@@ -128,13 +124,15 @@ const handleBulkFileChange = (e: Event) => {
   if (files && files.length > 0) {
     const fileList = Array.from(files).slice(0, slotsCount.value);
     fileList.forEach((file, i) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          emit('photoUploaded', i, event.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            emit('photoUploaded', i, event.target.result as string);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     });
   }
   target.value = '';

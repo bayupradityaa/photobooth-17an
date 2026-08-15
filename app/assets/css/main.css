@@ -3,32 +3,62 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #FF5FB2;
-  --color-primary-light: #FF8CC6;
-  --color-secondary: #FFA364;
-  --color-accent: #5CE1E6;
-  --color-pink: #FF5FB2;
-  --color-pink-tint-15: rgba(255, 95, 178, 0.15);
+  --color-primary: #DC2626;
+  --color-primary-dark: #991B1B;
+  --color-secondary: #18181B;
+  --color-gold: #F59E0B;
+  --color-paper: #FDFBF7;
   
-  --bg-primary: #FFFFFF;
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --border-color: #E2E8F0;
-  
-  --text-primary: #1E293B;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
-
-  --font-body: 'Inter', sans-serif;
+  --font-display: 'Anton', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: #F8FAFC;
-  color: var(--text-primary);
+  background-color: #FDFBF7;
+  color: #18181B;
+  overflow-x: hidden;
 }
 
-.glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+/* Halftone / Polka Dot Pattern */
+.bg-halftone-white {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.4) 2px, transparent 2px);
+  background-size: 16px 16px;
+}
+
+.bg-halftone-black {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.15) 2px, transparent 2px);
+  background-size: 16px 16px;
+}
+
+/* Camera Flash Animation */
+@keyframes camera-flash {
+  0% { opacity: 0; }
+  50% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+
+.animate-flash {
+  animation: camera-flash 0.4s ease-out forwards;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FDFBF7;
+  border-left: 2px solid #18181B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DC2626;
+  border: 2px solid #18181B;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #991B1B;
 }

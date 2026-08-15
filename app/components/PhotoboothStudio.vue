@@ -1,126 +1,172 @@
 <template>
-  <div class="flex flex-col items-center w-full">
+  <div class="flex flex-col items-center w-full relative">
+    
+    <!-- Toast Notification Popup -->
+    <transition enter-active-class="transition duration-300 ease-out"
+                enter-from-class="transform -translate-y-4 opacity-0 scale-95"
+                enter-to-class="transform translate-y-0 opacity-100 scale-100"
+                leave-active-class="transition duration-200 ease-in"
+                leave-from-class="transform translate-y-0 opacity-100 scale-100"
+                leave-to-class="transform -translate-y-4 opacity-0 scale-95">
+      <div v-if="toastMessage" class="fixed top-5 z-50 max-w-md w-full mx-auto px-4 pointer-events-none">
+        <div class="bg-black text-white border-3 border-gold-light p-4 shadow-brutal flex items-center gap-3">
+          <Flag class="w-6 h-6 text-primary fill-primary shrink-0" />
+          <p class="font-sans font-bold text-xs sm:text-sm leading-snug flex-1">
+            {{ toastMessage }}
+          </p>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Camera Flash Effect Overlay -->
+    <div v-if="isFlashing" class="fixed inset-0 bg-white z-[9999] pointer-events-none animate-flash"></div>
+
     <!-- Show Loading Spinner while loading settings -->
     <div v-if="loadingSettings || (!activeFrame && framesList.length === 0)" class="flex flex-col items-center justify-center min-h-[400px] w-full text-center">
-      <div class="w-12 h-12 bg-black border-4 border-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] animate-spin mb-6"></div>
-      <p class="text-xl text-black font-display uppercase tracking-widest animate-pulse">Memuat Studio...</p>
+      <div class="w-12 h-12 bg-primary border-4 border-black shadow-brutal animate-spin mb-6"></div>
+      <p class="text-xl text-black font-display uppercase tracking-widest animate-pulse">Memuat Studio 17-an...</p>
     </div>
 
     <!-- Show Event Inactive State if disabled by Admin -->
-    <div v-else-if="settings && !settings.active" class="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 px-6 bg-[#f9f6f0] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mt-12">
-      <h1 class="text-3xl sm:text-4xl font-display text-black uppercase tracking-wider mb-4 border-b-4 border-black pb-2">
-        Akses Ditutup
+    <div v-else-if="settings && !settings.active" class="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 px-6 bg-paper border-4 border-black shadow-brutal mt-8">
+      <div class="w-16 h-16 bg-primary text-white border-3 border-black shadow-brutal-sm flex items-center justify-center font-display text-3xl mb-4">
+        !
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-display text-black uppercase tracking-wider mb-3 border-b-4 border-black pb-2">
+        Akses Ditutup Sementara
       </h1>
-      <p class="text-lg text-black font-serif italic font-bold mb-8">
-        {{ settings.maintenanceMessage || "Studio foto saat ini sedang dinonaktifkan sementara. Ikuti terus sosial media resmi kami untuk info event spesial berikutnya!" }}
+      <p class="text-sm sm:text-base text-black/80 font-sans font-semibold mb-6">
+        {{ settings.maintenanceMessage || "Studio foto saat ini sedang dinonaktifkan sementara oleh panitia. Nantikan pengumuman acara berikutnya!" }}
       </p>
       <a
         href="/"
-        class="bg-black text-[#f9f6f0] font-display text-xl uppercase tracking-widest py-3 px-8 border-4 border-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:translate-x-1 active:shadow-none text-center cursor-pointer"
+        class="bg-black hover:bg-neutral-800 text-white font-display text-base uppercase tracking-widest py-3 px-8 border-3 border-black shadow-brutal active:translate-x-0.5 active:translate-y-0.5 transition-all text-center cursor-pointer flex items-center justify-center gap-2"
       >
-        Kembali ke Beranda
+        <ArrowLeft class="w-4 h-4" />
+        <span>Kembali ke Beranda</span>
       </a>
     </div>
 
     <!-- Guard: no frames available at all -->
-    <div v-else-if="framesList.length === 0" class="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-16 px-4 gap-6">
-      <div class="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-black text-left">
-        <h3 class="font-display uppercase tracking-widest text-2xl border-b-4 border-black pb-2 mb-4">BELUM ADA BINGKAI</h3>
-        <p class="font-serif italic font-bold text-lg">Admin belum menambahkan template bingkai foto. Silakan login ke halaman Admin untuk mengunggah template bingkai PNG.</p>
+    <div v-else-if="framesList.length === 0" class="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 px-4 gap-4">
+      <div class="p-6 bg-white border-4 border-black shadow-brutal text-black text-left">
+        <h3 class="font-display uppercase tracking-widest text-xl border-b-3 border-black pb-2 mb-3">BELUM ADA BINGKAI</h3>
+        <p class="font-sans text-sm font-semibold">Admin belum menambahkan template bingkai. Silakan login ke halaman Admin untuk mengunggah template bingkai.</p>
       </div>
-      <a href="/" class="bg-black text-[#f9f6f0] border-4 border-black font-display uppercase tracking-widest px-6 py-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
-        &larr; KEMBALI
+      <a href="/" class="bg-black text-white border-3 border-black font-display uppercase tracking-widest px-6 py-2.5 shadow-brutal transition-all flex items-center justify-center gap-2">
+        <ArrowLeft class="w-4 h-4" />
+        <span>KEMBALI</span>
       </a>
     </div>
 
     <!-- Step 1 Layout: Full-Screen Template Selection Grid -->
-    <div v-else-if="isSelectFrame" class="flex flex-col items-center w-full max-w-5xl mx-auto">
-      <div class="text-center space-y-2 sm:space-y-4 max-w-4xl mx-auto mb-8 sm:mb-12">
-        <h1 class="text-4xl sm:text-6xl font-display text-black uppercase tracking-wider leading-[1.1] sm:leading-[0.9]">
-          Pilih Bingkai<br/>Foto
+    <div v-else-if="isSelectFrame" class="flex flex-col items-center w-full max-w-5xl mx-auto px-2">
+      <div class="text-center space-y-2 max-w-3xl mx-auto mb-6 sm:mb-10 flex flex-col items-center">
+        <img src="/logomerah81.png" alt="Logo HUT RI 81" class="h-14 sm:h-20 w-auto object-contain mb-1" />
+        <div class="inline-block bg-primary text-white font-display text-xs px-3 py-1 uppercase tracking-widest border-2 border-black mb-1">
+          Langkah 1: Pilih Bingkai
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-display text-black uppercase tracking-wider leading-[0.95]">
+          Pilih Bingkai <span class="text-primary">17 Agustus</span>
         </h1>
-        <p class="text-base sm:text-xl text-black font-serif italic font-bold px-4">
-          Pilih template bingkai eksklusif favoritmu untuk memulai sesi photobooth bertema khusus.
+        <p class="text-xs sm:text-base text-black/80 font-sans font-semibold px-4">
+          Pilih template bingkai eksklusif bertema Kemerdekaan RI ke-81 favoritmu.
         </p>
       </div>
 
-      <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-10 w-full justify-center px-2 sm:px-4 max-w-5xl pb-24 sm:pb-32">
+      <!-- Frame Cards Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 w-full justify-center pb-24 sm:pb-32">
         <button
           v-for="frame in framesList"
           :key="frame.id"
           @click="selectFrame(frame.id, frame.slots.length)"
-          class="flex flex-col text-left bg-[#f9f6f0] border-2 sm:border-4 border-black transition-all duration-300 w-full focus:outline-none relative group cursor-pointer max-w-none mx-auto"
-          :class="frame.id === state.activeFrameId ? 'shadow-none translate-y-1 translate-x-1 sm:translate-y-2 sm:translate-x-2 border-red-600 bg-[#fffbe6]' : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'"
+          class="flex flex-col text-left bg-white border-3 sm:border-4 border-black transition-all duration-200 w-full focus:outline-none relative group cursor-pointer"
+          :class="frame.id === state.activeFrameId ? 'shadow-none translate-y-1 translate-x-1 border-primary bg-gold-light/30 ring-3 ring-primary' : 'shadow-brutal hover:translate-y-0.5 hover:translate-x-0.5 hover:shadow-brutal-sm'"
         >
-          <div class="w-full aspect-[4/5] bg-neutral-200 relative flex items-center justify-center p-2 sm:p-6 border-b-2 sm:border-b-4 border-black overflow-hidden">
-            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(black_2px,transparent_2px)] [background-size:16px_16px]" />
+          <!-- Frame Preview Container -->
+          <div class="w-full aspect-[4/5] bg-paper-dark relative flex items-center justify-center p-2 sm:p-4 border-b-3 sm:border-b-4 border-black overflow-hidden">
+            <div class="absolute inset-0 opacity-15 bg-halftone-black" />
+            
             <div
-              class="h-full relative overflow-hidden flex items-center justify-center border-2 sm:border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.5)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-105 bg-white"
+              class="h-full relative overflow-hidden flex items-center justify-center border-2 border-black shadow-sm transition-transform duration-300 group-hover:scale-105 bg-white"
               :style="{ aspectRatio: `${frame.canvasWidth} / ${frame.canvasHeight}` }"
             >
-              <img :src="frame.thumbnail ?? frame.src" :alt="frame.name" class="w-full h-full object-cover grayscale mix-blend-multiply opacity-90" />
+              <img :src="frame.thumbnail ?? frame.src" :alt="frame.name" class="w-full h-full object-contain" />
             </div>
-            <div class="absolute top-1 left-1 sm:top-2 sm:left-2 bg-black text-[#f9f6f0] text-[8px] sm:text-[10px] font-display px-2 py-0.5 sm:px-3 sm:py-1 uppercase tracking-widest border border-[#f9f6f0]">
-              Exclusive
+
+            <!-- Active Selected Indicator -->
+            <div v-if="frame.id === state.activeFrameId" class="absolute top-1.5 right-1.5 bg-primary text-white text-[9px] sm:text-[11px] font-display px-2 py-0.5 uppercase tracking-widest border border-black shadow-sm flex items-center gap-1">
+              <Check class="w-3 h-3" />
+              <span>DIPILIH</span>
             </div>
           </div>
-          <div class="p-2 sm:p-4 w-full flex flex-col bg-inherit">
-            <h3 class="font-display text-base sm:text-2xl text-black group-hover:text-red-600 transition-colors line-clamp-1 sm:line-clamp-2 mb-1 uppercase tracking-wide">
+
+          <!-- Frame Info Footer -->
+          <div class="p-2.5 sm:p-3.5 w-full flex flex-col bg-inherit">
+            <h3 class="font-display text-xs sm:text-base text-black group-hover:text-primary transition-colors line-clamp-1 uppercase tracking-wide">
               {{ frame.name }}
             </h3>
-            <div class="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-sm text-black font-serif font-bold italic border-t-2 border-black/20 pt-1.5 sm:pt-2 mt-1 sm:mt-2">
-              <span>&#9654; {{ frame.slots.length }} PHOTOS</span>
+            <div class="flex items-center justify-between text-[10px] sm:text-xs text-black/70 font-sans font-bold border-t border-black/15 pt-1.5 mt-1.5">
+              <span class="flex items-center gap-1">
+                <Camera class="w-3.5 h-3.5 text-primary" />
+                <span>{{ frame.slots.length }} Slot Foto</span>
+              </span>
+              <ArrowRight class="w-3.5 h-3.5 text-primary" />
             </div>
           </div>
         </button>
       </div>
 
-      <div v-if="state.activeFrameId" class="fixed bottom-4 sm:bottom-8 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-50 flex justify-center">
+      <!-- Sticky Next Action Bar -->
+      <div v-if="state.activeFrameId" class="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-50 flex justify-center max-w-md w-full">
         <button
           @click="state.status = 'SELECT_INPUT_MODE'"
-          class="w-full sm:w-auto sm:min-w-[400px] bg-black text-[#f9f6f0] border-4 border-black font-display uppercase tracking-widest text-xl sm:text-3xl py-3 sm:py-4 px-8 sm:px-16 transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:translate-x-1 active:shadow-none cursor-pointer text-center group"
+          class="w-full bg-primary hover:bg-primary-dark text-white border-4 border-black font-display uppercase tracking-widest text-lg sm:text-2xl py-3 sm:py-4 px-8 transition-all shadow-brutal hover:shadow-brutal-sm active:translate-x-1 active:translate-y-1 cursor-pointer text-center flex items-center justify-center gap-2.5"
         >
-          <span class="group-hover:text-yellow-300 transition-colors">Lanjut &rarr;</span>
+          <span>LANJUTKAN KE KAMERA</span>
+          <ArrowRight class="w-6 h-6" />
         </button>
       </div>
     </div>
 
-    <!-- Step 2, 3, 4 Layout: Studio Columns -->
+    <!-- Step 2, 3, 4 Layout: Studio 3-Column Interface -->
     <div v-else class="flex flex-col items-center w-full">
-      <div class="text-center space-y-1 sm:space-y-4 max-w-4xl mx-auto mb-2 sm:mb-10 px-4 shrink-0">
-        <h1 class="text-3xl sm:text-6xl font-display text-black uppercase tracking-wider leading-[0.9] border-b-2 sm:border-b-4 border-black pb-1 sm:pb-4 inline-block mt-2 sm:mt-0">
-          Studio Foto
+      <div class="text-center space-y-1 max-w-4xl mx-auto mb-3 sm:mb-6 px-4 shrink-0">
+        <h1 class="text-2xl sm:text-4xl font-display text-black uppercase tracking-wider leading-tight border-b-3 sm:border-b-4 border-black pb-1 inline-block">
+          Studio Photobooth
         </h1>
-        <p class="hidden sm:block text-sm sm:text-xl text-black font-serif italic font-bold">
-          Ambil pose ter-kece kamu dan abadikan kenangan manis ini!
+        <p class="hidden sm:block text-xs sm:text-sm text-black/80 font-sans font-semibold">
+          Bingkai: <span class="text-primary font-bold">{{ activeFrame?.name }}</span> ({{ activeFrame?.slots.length }} Slot Foto)
         </p>
       </div>
 
-      <div class="w-full max-w-6xl flex flex-col md:grid md:grid-cols-12 gap-4 sm:gap-8 items-center justify-center flex-1 px-2 pb-4 md:pb-0">
+      <div class="w-full max-w-6xl flex flex-col md:grid md:grid-cols-12 gap-4 sm:gap-6 items-center justify-center flex-1 px-2 pb-4">
         
         <!-- Left Column: Camera/Upload Preview, Steps Guide, or Export Help -->
         <div :class="`md:col-span-4 hidden md:flex justify-center w-full ${leftColOrder}`">
-          <div v-if="isSelectInput" class="bg-[#e8e4db] p-4 sm:p-6 border-4 border-black text-left w-full max-w-sm sm:max-w-md shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] relative mt-4">
-            <div class="absolute -top-4 left-4 sm:left-6 bg-black text-white px-2 py-1 font-display tracking-widest uppercase text-xs sm:text-sm border-2 border-white">Panduan</div>
-            <ul class="text-black font-serif text-sm sm:text-lg space-y-3 sm:space-y-4 leading-relaxed mt-2">
-              <li class="flex gap-3 border-b-2 border-black/10 pb-2">
-                <span class="font-display text-2xl mt-0.5">1</span>
-                <span><strong>Pilih Bingkai</strong>: (Selesai)</span>
+          
+          <!-- Guide Box for Input Mode Selection -->
+          <div v-if="isSelectInput" class="bg-white p-5 border-4 border-black text-left w-full max-w-sm shadow-brutal relative">
+            <div class="absolute -top-3.5 left-4 bg-black text-gold-light px-2.5 py-0.5 font-display tracking-widest uppercase text-xs border-2 border-black">
+              Panduan Foto
+            </div>
+            <ul class="text-black font-sans text-xs sm:text-sm space-y-3 font-semibold mt-2">
+              <li class="flex gap-2.5 border-b border-black/10 pb-2">
+                <span class="font-display text-lg text-primary">1</span>
+                <span>Pilih <strong>Kamera Live</strong> untuk selfie langsung atau <strong>Unggah File</strong> dari galeri HP.</span>
               </li>
-              <li class="flex gap-3 border-b-2 border-black/10 pb-2">
-                <span class="font-display text-2xl mt-0.5">2</span>
-                <span><strong>Metode Foto</strong>: Hubungkan webcam atau unggah gambar.</span>
+              <li class="flex gap-2.5 border-b border-black/10 pb-2">
+                <span class="font-display text-lg text-primary">2</span>
+                <span>Hitung mundur 3 detik akan otomatis berjalan sebelum kamera menjepret.</span>
               </li>
-              <li class="flex gap-3 border-b-2 border-black/10 pb-2">
-                <span class="font-display text-2xl mt-0.5">3</span>
-                <span><strong>Proses Cekrek</strong>: Ambil pose per slot.</span>
-              </li>
-              <li class="flex gap-3">
-                <span class="font-display text-2xl mt-0.5">4</span>
-                <span><strong>Unduh</strong>: Simpan hasil HD ke perangkat.</span>
+              <li class="flex gap-2.5">
+                <span class="font-display text-lg text-primary">3</span>
+                <span>Kamu bisa menyesuaikan zoom dan posisi foto di setiap slot.</span>
               </li>
             </ul>
           </div>
+
+          <!-- Upload Panel (Desktop) -->
           <UploadPanel
             v-else-if="isUploadPreview"
             :photos="state.capturedPhotos"
@@ -128,6 +174,8 @@
             @photoRemoved="onPhotoRemoved"
             class="hidden md:flex"
           />
+
+          <!-- Webcam Preview (Desktop) -->
           <WebcamPreview
             v-else-if="!isReview"
             ref="webcamPreviewRef"
@@ -138,29 +186,34 @@
             :capturedPhotos="state.capturedPhotos"
             class="hidden md:flex"
           />
-          <div v-else class="bg-[#e8e4db] p-4 sm:p-6 border-4 border-black text-left w-full max-w-sm sm:max-w-md shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] relative mt-4">
-            <div class="absolute -top-4 left-4 sm:left-6 bg-black text-white px-2 py-1 font-display tracking-widest uppercase text-xs sm:text-sm border-2 border-white">Panduan Ekspor</div>
-            <ul class="text-black font-serif text-sm sm:text-lg space-y-3 sm:space-y-4 leading-relaxed mt-2">
-              <li class="flex gap-3 border-b-2 border-black/10 pb-2">
-                <span class="font-display text-2xl mt-0.5">1</span>
-                <span>Klik <strong>Simpan ke Cloud & Unduh</strong> untuk menyimpan format PNG.</span>
+
+          <!-- Review Tips Box (Desktop) -->
+          <div v-else class="bg-white p-5 border-4 border-black text-left w-full max-w-sm shadow-brutal relative">
+            <div class="absolute -top-3.5 left-4 bg-primary text-white px-2.5 py-0.5 font-display tracking-widest uppercase text-xs border-2 border-black">
+              Opsi Berbagi
+            </div>
+            <ul class="text-black font-sans text-xs sm:text-sm space-y-3 font-semibold mt-2">
+              <li class="flex gap-2.5 border-b border-black/10 pb-2 items-center">
+                <Download class="w-5 h-5 text-primary shrink-0" />
+                <span>Klik <strong>UNDUH FOTO</strong> untuk menyimpan file PNG resolusi tinggi ke galeri.</span>
               </li>
-              <li class="flex gap-3 border-b-2 border-black/10 pb-2">
-                <span class="font-display text-2xl mt-0.5">2</span>
-                <span>Atau bagikan langsung via fitur <strong>Bagikan</strong> (Mobile).</span>
+              <li class="flex gap-2.5 border-b border-black/10 pb-2 items-center">
+                <Share2 class="w-5 h-5 text-primary shrink-0" />
+                <span>Klik <strong>BAGIKAN FOTO</strong> untuk langsung membuka WhatsApp atau Instagram Story di HP.</span>
               </li>
-              <li class="flex gap-3">
-                <span class="font-display text-2xl mt-0.5">3</span>
-                <span>Klik <strong>Mulai Baru</strong> untuk mengambil pose atau bingkai baru.</span>
+              <li class="flex gap-2.5 items-center">
+                <ShieldCheck class="w-5 h-5 text-primary shrink-0" />
+                <span>Foto tersimpan aman di perangkatmu tanpa dipublikasikan ke orang lain.</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <!-- Center Column: Photostrip Canvas / Placeholder -->
+        <!-- Center Column: Photostrip Live Canvas / Slots Preview -->
         <div :class="`md:col-span-4 flex justify-center w-full relative ${centerColOrder}`">
-          <!-- MOBILE ONLY COMPONENT PREVIEWS (Moved from left column to main center on mobile) -->
-          <div v-if="!isReview && !isSelectInput" class="md:hidden flex items-center justify-center w-full mb-4 sticky top-2 z-40">
+          
+          <!-- MOBILE ONLY COMPONENT PREVIEWS -->
+          <div v-if="!isReview && !isSelectInput" class="md:hidden flex items-center justify-center w-full mb-3 sticky top-2 z-40">
             <UploadPanel
               v-if="isUploadPreview"
               :photos="state.capturedPhotos"
@@ -184,19 +237,22 @@
             />
           </div>
 
+          <!-- Final Review Composite Canvas -->
           <div v-if="isReview" class="flex flex-col items-center w-full justify-center">
             <canvas
               ref="canvasRef"
-              class="w-full max-w-[260px] h-auto md:max-w-none md:max-h-[75vh] border-[6px] sm:border-8 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] sm:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] bg-white transition-transform hover:-translate-y-2 hover:-translate-x-2 duration-300 mx-auto"
+              class="w-full max-w-[280px] h-auto md:max-w-none md:max-h-[72vh] border-4 sm:border-6 border-black shadow-brutal-lg bg-white transition-transform hover:scale-[1.02] duration-300 mx-auto"
               :style="{ aspectRatio: `${activeFrame?.canvasWidth} / ${activeFrame?.canvasHeight}` }"
             ></canvas>
           </div>
+
+          <!-- Desktop Interactive Strip Preview -->
           <div
             v-else-if="activeFrame"
-            class="relative w-full max-w-[260px] h-auto md:max-w-none md:max-h-[75vh] border-[6px] sm:border-8 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] sm:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-[#e8e4db] flex flex-col select-none transition-all duration-300 mx-auto hidden md:flex"
+            class="relative w-full max-w-[280px] h-auto md:max-w-none md:max-h-[72vh] border-4 sm:border-6 border-black shadow-brutal-lg overflow-hidden bg-[#e8e4db] flex flex-col select-none transition-all duration-300 mx-auto hidden md:flex"
             :style="{ aspectRatio: `${activeFrame.canvasWidth} / ${activeFrame.canvasHeight}` }"
           >
-            <div class="absolute inset-0 bg-neutral-50 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] [background-size:16px_16px]" style="z-index: 1" />
+            <div class="absolute inset-0 bg-neutral-50 opacity-20 bg-halftone-black" style="z-index: 1" />
             
             <img
               :src="activeFrame.src"
@@ -205,6 +261,7 @@
               style="z-index: 2"
             />
 
+            <!-- Interactive Clickable / Draggable Slots -->
             <div class="absolute inset-0" style="z-index: 3">
               <div
                 v-for="(slot, idx) in activeFrame.slots"
@@ -212,7 +269,7 @@
                 @click="handleSlotClick(idx)"
                 @mousedown="(e) => handleDragStart(e, idx)"
                 @touchstart.passive="(e) => handleDragStart(e, idx)"
-                class="absolute flex items-center justify-center overflow-hidden text-xs font-bold transition-all duration-300 bg-black/10 text-black border-4 border-dashed border-black/30"
+                class="absolute flex items-center justify-center overflow-hidden text-xs font-bold transition-all duration-200 bg-black/10 text-black border-3 border-dashed border-black/30"
                 :class="isSlotClickable(idx) ? 'cursor-pointer pointer-events-auto hover:bg-black/20' : 'pointer-events-none'"
                 :style="{
                   left: `${(slot.x / activeFrame.canvasWidth) * 100}%`,
@@ -220,10 +277,10 @@
                   width: `${(slot.width / activeFrame.canvasWidth) * 100}%`,
                   height: `${(slot.height / activeFrame.canvasHeight) * 100}%`,
                   ...(isSlotActive(idx) && isSlotClickable(idx) ? {
-                    borderColor: 'black',
+                    borderColor: '#DC2626',
                     borderStyle: 'solid',
-                    borderWidth: '6px',
-                    boxShadow: 'inset 0 0 0 4px white'
+                    borderWidth: '5px',
+                    boxShadow: 'inset 0 0 0 3px white'
                   } : {})
                 }"
               >
@@ -237,14 +294,16 @@
                   }"
                 />
                 <template v-else>
-                  {{ isSlotActive(idx) && (state.status === 'COUNTDOWN' || state.status === 'CAPTURING') ? 'POSE' : (idx + 1) }}
+                  <span class="bg-black text-white px-2 py-0.5 font-display text-xs">
+                    {{ isSlotActive(idx) && (state.status === 'COUNTDOWN' || state.status === 'CAPTURING') ? 'POSE!' : `SLOT ${idx + 1}` }}
+                  </span>
                 </template>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Right Column: Context Action Controls -->
+        <!-- Right Column: Control Panel & Action Buttons -->
         <div :class="`md:col-span-4 flex justify-center w-full ${rightColOrder}`">
           <ControlPanel
             :state="state.status"
@@ -262,7 +321,7 @@
             @retake="handleRetake"
             @download="handleDownload"
             @share="handleShare"
-            @saveToCloud="handleSaveToCloud"
+            @copyCaption="handleCopyCaption"
             @processUpload="state.status = 'REVIEW'"
             @cancelUpload="cancelUpload"
             @captureClick="startCountdown"
@@ -279,6 +338,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { Camera, Flag, Check, ArrowRight, ArrowLeft, Download, Share2, ShieldCheck } from 'lucide-vue-next';
 import type { PhotoboothState, FrameConfig } from '~/utils/photobooth/types';
 import { startCamera, stopCamera } from '~/utils/photobooth/camera';
 import { compositePhotostrip } from '~/utils/photobooth/compositor';
@@ -316,9 +376,11 @@ const state = reactive<State>({
 });
 
 const framesList = ref<FrameConfig[]>([]);
-const canShare = ref(false);
+const canShare = ref(true);
 const settings = ref<{ active: boolean; maintenanceMessage: string } | null>(null);
 const loadingSettings = ref(true);
+const isFlashing = ref(false);
+const toastMessage = ref('');
 
 const webcamPreviewRef = ref<any>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
@@ -339,6 +401,58 @@ const leftColOrder = "order-3 md:order-none";
 const centerColOrder = "order-1 md:order-none";
 const rightColOrder = "order-2 md:order-none";
 
+// --- Web Audio Camera Shutter Sound Effect ---
+const playShutterSound = () => {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    
+    // Quick click transient
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(700, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.35, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08);
+
+    // Mechanical shutter noise
+    const bufferSize = ctx.sampleRate * 0.06;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.4, ctx.currentTime);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.06);
+    noise.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noise.start(ctx.currentTime + 0.01);
+  } catch (e) {
+    // Audio context may be restricted by user gesture policy
+  }
+};
+
+const showToast = (msg: string, duration = 4000) => {
+  toastMessage.value = msg;
+  setTimeout(() => {
+    toastMessage.value = '';
+  }, duration);
+};
+
+const getPromoCaption = () => {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  return `Saya sudah berfoto di Photobooth HUT RI ke-81 Pesona Cilebut 1!\nTema: "Indonesia Berdaulat, Adil, dan Makmur"\nYuk cobain dan abadikan momen 17-an kamu juga di: ${origin}`;
+};
+
 onMounted(async () => {
   try {
     const [data, framesData] = await Promise.all([
@@ -348,16 +462,13 @@ onMounted(async () => {
     settings.value = data;
     if (framesData && framesData.length > 0) {
       framesList.value = framesData;
+      state.activeFrameId = framesData[0].id;
     }
   } catch (err) {
-    console.error("Gagal memuat pengaturan photobooth:", err);
+    console.error("Gagal memuat data:", err);
     settings.value = { active: true, maintenanceMessage: "" };
   } finally {
     loadingSettings.value = false;
-  }
-
-  if (typeof window !== "undefined" && navigator.share) {
-    canShare.value = true;
   }
 });
 
@@ -463,16 +574,17 @@ const cancelUpload = () => {
   }
 };
 
-let countdownTimer: NodeJS.Timeout | null = null;
+let countdownTimer: any = null;
 const startCountdown = () => {
   state.status = "COUNTDOWN";
   state.countdown = 3;
 
   const tick = () => {
-    if (state.countdown > 0) {
+    if (state.countdown > 1) {
       state.countdown--;
       countdownTimer = setTimeout(tick, 1000);
     } else {
+      state.countdown = 0;
       capturePhoto();
     }
   };
@@ -481,6 +593,13 @@ const startCountdown = () => {
 
 const capturePhoto = () => {
   state.status = "CAPTURING";
+  
+  // Audio & Flash Effect
+  playShutterSound();
+  isFlashing.value = true;
+  setTimeout(() => {
+    isFlashing.value = false;
+  }, 400);
 
   setTimeout(() => {
     if (webcamPreviewRef.value?.videoRef) {
@@ -544,6 +663,7 @@ const handleRetake = () => {
   state.inputMode = null;
 };
 
+// 1. Direct Download Handler (HD PNG Client-side)
 const handleDownload = () => {
   if (!canvasRef.value) return;
   state.status = "EXPORTING";
@@ -553,17 +673,19 @@ const handleDownload = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `iris-photostrip-${Date.now()}.png`;
+      a.download = `photobooth-hut-ri-81-${Date.now()}.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      showToast("Foto berhasil diunduh ke perangkatmu!");
     }
     state.status = "REVIEW";
   }, "image/png");
 };
 
-const handleSaveToCloud = async () => {
+// 2. Smart Share Handler (Web Share API with fallback)
+const handleShare = async () => {
   if (!canvasRef.value) return;
   state.status = "EXPORTING";
 
@@ -573,61 +695,70 @@ const handleSaveToCloud = async () => {
       return;
     }
 
-    // Always download locally first
+    const fileName = `photobooth-hut-ri-81-${Date.now()}.png`;
+    const file = new File([blob], fileName, { type: "image/png" });
+    const shareUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const caption = getPromoCaption();
+
+    // Check if device supports sharing files directly via OS share sheet
+    if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: "Photobooth HUT RI ke-81 Pesona Cilebut 1",
+          text: caption,
+          url: shareUrl
+        });
+        state.status = "REVIEW";
+        return;
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.warn("Native share error, falling back:", err);
+        } else {
+          state.status = "REVIEW";
+          return;
+        }
+      }
+    }
+
+    // Fallback for Desktop / browsers that don't support file sharing
+    // 1. Auto download photo
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `photobooth-${Date.now()}.png`;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    // Then try cloud upload (best-effort)
+    // 2. Copy caption to clipboard
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async () => {
-        try {
-          const base64data = reader.result as string;
-          await $fetch('/api/upload', {
-            method: 'POST',
-            body: { imageBase64: base64data }
-          });
-        } catch (err) {
-          console.warn("Cloud upload skipped (bindings may not be configured):", err);
-        } finally {
-          state.status = "REVIEW";
-        }
-      };
-    } catch (error) {
-      console.warn("Cloud upload prep failed:", error);
-      state.status = "REVIEW";
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(caption);
+      }
+    } catch (e) {
+      // clipboard fallback
     }
+
+    showToast("Foto terunduh & teks promo berhasil disalin! Kamu bisa langsung upload di Status WA / IG Story.");
+    state.status = "REVIEW";
   }, "image/png");
 };
 
-const handleShare = async () => {
-  if (!canvasRef.value) return;
-  state.status = "EXPORTING";
-
-  canvasRef.value.toBlob(async (blob) => {
-    if (blob) {
-      const file = new File([blob], `iris-photostrip-${Date.now()}.png`, { type: "image/png" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: "Studio Foto Online",
-            text: "Lihat photostrip kerenku!"
-          });
-        } catch (err) {
-          console.error("Gagal share:", err);
-        }
-      }
+// 3. Copy Caption Handler
+const handleCopyCaption = async () => {
+  const caption = getPromoCaption();
+  try {
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(caption);
+      showToast("Teks promosi & link berhasil disalin ke clipboard!");
+    } else {
+      showToast("Link acara: " + window.location.origin);
     }
-    state.status = "REVIEW";
-  }, "image/png");
+  } catch (err) {
+    showToast("Link acara: " + window.location.origin);
+  }
 };
 
 const isSlotActive = (idx: number) => {
@@ -641,14 +772,14 @@ const isSlotClickable = (idx: number) => {
 const handleSlotClick = (idx: number) => {
   if (isSlotClickable(idx)) {
     state.photoIndex = idx;
-    const hasPhoto = state.capturedPhotos[idx] && state.capturedPhotos[idx] !== "";
+    const hasPhoto = Boolean(state.capturedPhotos[idx] && state.capturedPhotos[idx] !== "");
     state.status = hasPhoto ? "CONFIRM_CAPTURE" : (state.inputMode === "upload" ? "UPLOAD_PREVIEW" : "LIVE_PREVIEW");
   }
 };
 
-const currentSlotHasPhoto = computed(() => state.capturedPhotos[state.photoIndex] && state.capturedPhotos[state.photoIndex] !== "");
-const showZoomSlider = computed(() => state.status === "CONFIRM_CAPTURE" || (state.status === "UPLOAD_PREVIEW" && currentSlotHasPhoto.value));
-const currentScale = computed(() => state.photoScales[state.photoIndex] || 1.0);
+const currentSlotHasPhoto = computed<boolean>(() => Boolean(state.capturedPhotos[state.photoIndex] && state.capturedPhotos[state.photoIndex] !== ""));
+const showZoomSlider = computed<boolean>(() => Boolean(state.status === "CONFIRM_CAPTURE" || (state.status === "UPLOAD_PREVIEW" && currentSlotHasPhoto.value)));
+const currentScale = computed<number>(() => state.photoScales[state.photoIndex] || 1.0);
 
 const updateScale = (scale: number) => {
   if (state.photoIndex > -1) {
@@ -669,7 +800,7 @@ const clampOffset = (idx: number) => {
   }
 };
 
-// --- DRAG LOGIC (Desktop / PhotoboothStudio) ---
+// --- DRAG LOGIC (Desktop) ---
 const dragState = {
   isDragging: false,
   slotIdx: -1,
@@ -684,17 +815,24 @@ const dragState = {
 const handleDragStart = (e: MouseEvent | TouchEvent, idx: number) => {
   if (state.status !== 'CONFIRM_CAPTURE' || state.photoIndex !== idx) return;
   const scale = state.photoScales[idx] || 1.0;
-  if (scale <= 1.0) return; // Only allow drag if zoomed in
+  if (scale <= 1.0) return;
   
+  let clientX = 0;
+  let clientY = 0;
+  if ('touches' in e) {
+    const touch = e.touches[0];
+    if (!touch) return;
+    clientX = touch.clientX;
+    clientY = touch.clientY;
+  } else {
+    clientX = (e as MouseEvent).clientX;
+    clientY = (e as MouseEvent).clientY;
+  }
+
   dragState.isDragging = true;
   dragState.slotIdx = idx;
-  
-  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
-  const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
-  
   dragState.startX = clientX;
   dragState.startY = clientY;
-  
   dragState.initialOffsetX = state.photoOffsetsX[idx] || 0;
   dragState.initialOffsetY = state.photoOffsetsY[idx] || 0;
   
@@ -709,15 +847,22 @@ const handleDragStart = (e: MouseEvent | TouchEvent, idx: number) => {
 };
 
 const handleDragMove = (e: MouseEvent | TouchEvent) => {
-  if (!dragState.isDragging) return;
-  
-  // Prevent scrolling on mobile while dragging
+  if (!dragState.isDragging || dragState.slotIdx === -1) return;
   if ('touches' in e && e.cancelable) {
     e.preventDefault();
   }
   
-  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
-  const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
+  let clientX = 0;
+  let clientY = 0;
+  if ('touches' in e) {
+    const touch = e.touches[0];
+    if (!touch) return;
+    clientX = touch.clientX;
+    clientY = touch.clientY;
+  } else {
+    clientX = (e as MouseEvent).clientX;
+    clientY = (e as MouseEvent).clientY;
+  }
   
   const dx = clientX - dragState.startX;
   const dy = clientY - dragState.startY;
@@ -725,7 +870,6 @@ const handleDragMove = (e: MouseEvent | TouchEvent) => {
   let px = dragState.initialOffsetX + (dx / dragState.containerWidth) * 100;
   let py = dragState.initialOffsetY + (dy / dragState.containerHeight) * 100;
   
-  // If camera is mirrored, invert dx
   if (state.inputMode === 'camera') {
     px = dragState.initialOffsetX - (dx / dragState.containerWidth) * 100;
   }
@@ -743,7 +887,7 @@ const handleDragEnd = () => {
   window.removeEventListener('touchend', handleDragEnd);
 };
 
-// --- DRAG LOGIC (Mobile / WebcamPreview) ---
+// --- DRAG LOGIC (Mobile) ---
 const handleMobileDrag = (px: number, py: number) => {
   if (state.status !== 'CONFIRM_CAPTURE') return;
   state.photoOffsetsX[state.photoIndex] = px;

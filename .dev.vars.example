@@ -1,0 +1,3 @@
+# Rahasia lokal untuk akses halaman admin (/admin)
+# Jangan commit file .dev.vars (tanpa .example) ke repositori publik!
+ADMIN_PASSWORD=uyabganteng

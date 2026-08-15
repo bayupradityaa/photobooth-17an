@@ -1,0 +1,10 @@
+name = "photobooth-17an"
+compatibility_date = "2024-04-03"
+pages_build_output_dir = "dist"
+[[d1_databases]]
+binding = "DB"
+database_name = "photobooth-app"
+database_id = "6512010e-1ca1-4afc-9f4a-672aa35e5e02"
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "photobooth-storage"

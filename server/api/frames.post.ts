@@ -13,8 +13,8 @@ export default defineEventHandler(async (event) => {
       return { success: false, error: 'Data request tidak valid' };
     }
 
-    const { id, name, canvasWidth, canvasHeight, slots, thumbnail, src } = body;
-    const base64Image = thumbnail || src;
+    const { id, name, canvasWidth, canvasHeight, slots, thumbnail, src, base64Image: rawBase64 } = body;
+    const base64Image = rawBase64 || thumbnail || src;
 
     if (!name || !base64Image) {
       setResponseStatus(event, 400);

@@ -94,15 +94,26 @@ export const photoboothService = {
 
   async addCustomFrame(newFrame: any) {
     try {
-      const res = await $fetch('/api/frames', {
+      const base64Image = newFrame.base64Image || newFrame.thumbnail || newFrame.src;
+      const res = await $fetch<any>('/api/frames', {
         method: 'POST',
         headers: getAdminHeaders(),
-        body: newFrame
+        body: {
+          id: newFrame.id,
+          name: newFrame.name,
+          canvasWidth: newFrame.canvasWidth,
+          canvasHeight: newFrame.canvasHeight,
+          slots: newFrame.slots,
+          base64Image
+        }
       });
-      return { success: true, image_key: (res as any).image_key };
+      return { success: true, image_key: res?.image_key };
     } catch (error: any) {
       console.error('Error adding custom frame:', error);
-      return { success: false, error: error.message };
+      if (error?.status === 413 || error?.statusCode === 413) {
+        return { success: false, error: 'Ukuran file melebihi batas serverless (Max 4.5MB). Sistem akan otomatis mengompresi gambar.' };
+      }
+      return { success: false, error: error.data?.error || error.message || 'Gagal menyimpan template' };
     }
   },
 

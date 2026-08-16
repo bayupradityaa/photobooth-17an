@@ -327,34 +327,78 @@ const handlePngFileSelect = (e: Event) => {
 
   const reader = new FileReader();
   reader.onload = (event) => {
-    const src = event.target?.result as string;
-    if (src) {
-      pngDataUrl.value = src;
-      analyzePngTransparency(src);
+    const rawSrc = event.target?.result as string;
+    if (rawSrc) {
+      processAndOptimizePng(rawSrc);
     }
   };
   reader.readAsDataURL(file);
 };
 
-const analyzePngTransparency = (src: string) => {
+const processAndOptimizePng = (rawSrc: string) => {
   isAnalyzing.value = true;
   const img = new Image();
   img.crossOrigin = 'anonymous';
   img.onload = async () => {
-    const result = await detectPngSlots(img);
-    detectedData.value = result;
-    isAnalyzing.value = false;
+    // 1. Detect transparent slots
+    const detection = await detectPngSlots(img);
     
-    if (result.slots.length === 0) {
-      alert('Tidak ditemukan lubang foto transparan pada PNG ini.');
+    // 2. Optimize resolution if larger than 1800px to ensure small payload size (< 1.5MB)
+    const maxDim = 1800;
+    let finalW = detection.canvasWidth;
+    let finalH = detection.canvasHeight;
+    let scale = 1.0;
+
+    if (finalW > maxDim || finalH > maxDim) {
+      if (finalW >= finalH) {
+        scale = maxDim / finalW;
+        finalW = maxDim;
+        finalH = Math.round(detection.canvasHeight * scale);
+      } else {
+        scale = maxDim / finalH;
+        finalH = maxDim;
+        finalW = Math.round(detection.canvasWidth * scale);
+      }
     }
 
-    // Delay slight bit to allow canvas ref to be mounted if it was hidden
+    const optCanvas = document.createElement('canvas');
+    optCanvas.width = finalW;
+    optCanvas.height = finalH;
+    const optCtx = optCanvas.getContext('2d');
+    if (optCtx) {
+      optCtx.drawImage(img, 0, 0, finalW, finalH);
+    }
+    const optimizedDataUrl = optCanvas.toDataURL('image/png');
+    
+    // Scale slots proportionally
+    const scaledSlots = detection.slots.map((s: any) => ({
+      x: Math.round(s.x * scale),
+      y: Math.round(s.y * scale),
+      width: Math.round(s.width * scale),
+      height: Math.round(s.height * scale)
+    }));
+
+    pngDataUrl.value = optimizedDataUrl;
+    detectedData.value = {
+      canvasWidth: finalW,
+      canvasHeight: finalH,
+      slots: scaledSlots
+    };
+    isAnalyzing.value = false;
+
+    if (scaledSlots.length === 0) {
+      alert('Peringatan: Tidak ditemukan lubang foto transparan pada PNG ini. Pastikan area foto 100% transparan.');
+    }
+
     setTimeout(() => {
-      renderCanvasPreview(img, result);
+      const optImg = new Image();
+      optImg.onload = () => {
+        renderCanvasPreview(optImg, detectedData.value);
+      };
+      optImg.src = optimizedDataUrl;
     }, 100);
   };
-  img.src = src;
+  img.src = rawSrc;
 };
 
 const renderCanvasPreview = (img: HTMLImageElement, result: any) => {
@@ -397,11 +441,10 @@ const handleSaveNewFrame = async () => {
 
   isUploadingFrame.value = true;
   
-  const newFrame: FrameConfig = {
+  const newFrame: any = {
     id: `custom-frame-${Date.now()}`,
     name: frameName.value.trim(),
-    thumbnail: pngDataUrl.value,
-    src: pngDataUrl.value,
+    base64Image: pngDataUrl.value,
     canvasWidth: detectedData.value.canvasWidth || 1200,
     canvasHeight: detectedData.value.canvasHeight || 1800,
     slots: detectedData.value.slots.length > 0 ? detectedData.value.slots : [

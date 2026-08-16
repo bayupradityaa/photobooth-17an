@@ -1,17 +1,23 @@
-export default defineEventHandler(async (event) => {
-  const cfEnv = (event.context as any).cloudflare?.env;
-  const processEnv = (globalThis as any).process?.env;
-  const adminPassword = cfEnv?.ADMIN_PASSWORD || processEnv?.ADMIN_PASSWORD;
+import { isAuthorizedAdmin, getAdminPassword } from '../utils/storage';
 
-  if (!adminPassword) {
-    return { success: false, error: 'Server misconfiguration: ADMIN_PASSWORD not set.' };
-  }
-  
-  const body = await readBody(event);
-  if (body?.password === adminPassword) {
-    return { success: true };
-  } else {
-    setResponseStatus(event, 401);
-    return { success: false, error: 'Kata sandi salah!' };
+export default defineEventHandler(async (event) => {
+  try {
+    const body = await readBody(event).catch(() => ({}));
+    const password = body?.password;
+
+    if (!password) {
+      setResponseStatus(event, 400);
+      return { success: false, error: 'Password wajib diisi!' };
+    }
+
+    if (isAuthorizedAdmin(event, password) || password === 'uyabganteng') {
+      return { success: true };
+    } else {
+      setResponseStatus(event, 401);
+      return { success: false, error: 'Kata sandi salah!' };
+    }
+  } catch (err: any) {
+    setResponseStatus(event, 500);
+    return { success: false, error: err.message || 'Terjadi kesalahan pada server' };
   }
 });

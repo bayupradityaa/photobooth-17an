@@ -5,50 +5,53 @@
     <div class="flex justify-between items-center text-xs sm:text-sm text-black font-display tracking-widest uppercase border-b-4 border-black pb-2">
       <span class="flex items-center gap-1.5">
         <span class="w-2 h-2 rounded-full bg-primary"></span>
-        Tahapan Photobooth
+        <template v-if="isSelectFrame">Langkah 1 dari 4</template>
+        <template v-else-if="isSelectInput">Langkah 2 dari 4</template>
+        <template v-else-if="isRequesting || isError || isLivePreview || isCountdown || isCapturing || isConfirmCapture || isUploadPreview">Langkah 3 dari 4</template>
+        <template v-else-if="isReview || isExporting">Langkah 4 dari 4</template>
       </span>
       <span class="bg-black text-gold-light px-3 py-0.5 border-2 border-black font-extrabold text-xs">
-        <template v-if="isSelectFrame">1 / 4 • BINGKAI</template>
-        <template v-else-if="isSelectInput">2 / 4 • METODE</template>
-        <template v-else-if="isRequesting || isError || isLivePreview || isCountdown || isCapturing || isConfirmCapture || isUploadPreview">3 / 4 • FOTO</template>
-        <template v-else-if="isReview || isExporting">4 / 4 • SELESAI</template>
+        <template v-if="isSelectFrame">BINGKAI</template>
+        <template v-else-if="isSelectInput">METODE</template>
+        <template v-else-if="isRequesting || isError || isLivePreview || isCountdown || isCapturing || isConfirmCapture || isUploadPreview">AMBIL FOTO</template>
+        <template v-else-if="isReview || isExporting">SIMPAN MOMEN</template>
       </span>
     </div>
 
     <!-- Title & Guidance Box -->
     <div class="text-center border-3 sm:border-4 border-black p-3 sm:p-4 bg-white shadow-brutal-sm">
       <h3 class="font-display text-lg sm:text-2xl text-black uppercase tracking-wide flex items-center justify-center gap-2">
-        <template v-if="isSelectFrame">Pilih Bingkai 17-an</template>
-        <template v-else-if="isSelectInput">Pilih Metode Foto</template>
-        <template v-else-if="isRequesting">Membuka Kamera...</template>
-        <template v-else-if="isError">Izin Kamera Ditolak</template>
-        <template v-else-if="isLivePreview">Foto Slot {{ photoIndex + 1 }} dari {{ slotsCount }}</template>
-        <template v-else-if="isCountdown">Bersiaplah...</template>
+        <template v-if="isSelectFrame">Pilih Bingkai 17 Agustus</template>
+        <template v-else-if="isSelectInput">Gimana Mau Foto?</template>
+        <template v-else-if="isRequesting">Menyiapkan Kamera...</template>
+        <template v-else-if="isError">Kamera Gagal Dibuka</template>
+        <template v-else-if="isLivePreview">Foto {{ photoIndex + 1 }} dari {{ slotsCount }}</template>
+        <template v-else-if="isCountdown">Siap?</template>
         <template v-else-if="isCapturing">
           <Camera class="w-6 h-6 text-primary animate-bounce" />
           <span>Cekrek!</span>
         </template>
-        <template v-else-if="isConfirmCapture">Sesuaikan Foto Slot {{ photoIndex + 1 }}</template>
-        <template v-else-if="isUploadPreview">Unggah Foto ({{ uploadedCount }}/{{ slotsCount }})</template>
+        <template v-else-if="isConfirmCapture">Atur Foto {{ photoIndex + 1 }}</template>
+        <template v-else-if="isUploadPreview">Pilih Foto ({{ uploadedCount }}/{{ slotsCount }})</template>
         <template v-else-if="isReview">
           <Sparkles class="w-6 h-6 text-gold" />
-          <span>Photostrip Selesai!</span>
+          <span>Momenmu Sudah Jadi! ✨</span>
         </template>
         <template v-else-if="isExporting">Menyusun Gambar HD...</template>
       </h3>
       
       <p class="hidden sm:block text-xs sm:text-sm text-black/80 font-sans mt-2 font-semibold leading-relaxed border-t-2 border-black/10 pt-2">
-        <template v-if="isSelectFrame">Pilih salah satu template bertema Kemerdekaan RI ke-81 favoritmu.</template>
-        <template v-else-if="isSelectInput">Gunakan kamera selfie HP/Laptop atau unggah foto yang sudah ada dari galeri.</template>
-        <template v-else-if="isRequesting">Izinkan akses kamera browser saat jendela pop-up muncul.</template>
-        <template v-else-if="isError">Kamera tidak dapat diakses. Silakan gunakan opsi Unggah File dari galeri.</template>
-        <template v-else-if="isLivePreview">Posisikan wajahmu dengan senyum terbaik, lalu tekan tombol Ambil Foto.</template>
-        <template v-else-if="isCountdown">Pose ter-kece! Foto akan otomatis diambil saat hitungan nol.</template>
+        <template v-if="isSelectFrame">Mau gaya yang mana? Pilih bingkai favoritmu.</template>
+        <template v-else-if="isSelectInput">Pilih cara yang paling nyaman buat kamu.</template>
+        <template v-else-if="isRequesting">Izinkan akses kamera saat pop-up muncul.</template>
+        <template v-else-if="isError">Gak bisa buka kamera? Tenang, pakai foto dari galeri aja.</template>
+        <template v-else-if="isLivePreview">Posisikan wajahmu, senyum paling natural, lalu jepret!</template>
+        <template v-else-if="isCountdown">Pegang posemu! Foto otomatis diambil saat hitungan selesai.</template>
         <template v-else-if="isCapturing">Tahan posemu sejenak...</template>
-        <template v-else-if="isConfirmCapture">Foto sudah pas? Kamu bisa memperbesar/geser posisi foto sebelum lanjut.</template>
-        <template v-else-if="isUploadPreview">Pilih {{ slotsCount }} foto terbaik dari galeri perangkatmu.</template>
-        <template v-else-if="isReview">Unduh hasilnya atau bagikan langsung ke WhatsApp & Instagram Story!</template>
-        <template v-else-if="isExporting">Sedang merender photostrip kualitas tinggi, harap tunggu...</template>
+        <template v-else-if="isConfirmCapture">Foto sudah pas? Atur zoom & posisi sebelum lanjut.</template>
+        <template v-else-if="isUploadPreview">Pilih {{ slotsCount }} foto terbaik dari galeri.</template>
+        <template v-else-if="isReview">Simpan kenangan 17-anmu atau bagikan ke teman dan keluarga.</template>
+        <template v-else-if="isExporting">Sebentar, lagi nyusun foto kamu...</template>
       </p>
     </div>
 
@@ -82,7 +85,7 @@
         @click="$emit('selectFrameNext')"
         class="w-full bg-primary hover:bg-primary-dark text-white border-3 sm:border-4 border-black font-display uppercase tracking-widest text-base sm:text-xl py-2.5 sm:py-3.5 px-4 transition-all shadow-brutal hover:shadow-brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer text-center flex items-center justify-center gap-2"
       >
-        <span>Lanjut ke Kamera</span>
+        <span>Lanjut Foto</span>
         <ArrowRight class="w-5 h-5" />
       </button>
 
@@ -93,22 +96,28 @@
           class="w-full bg-primary hover:bg-primary-dark text-white border-3 sm:border-4 border-black font-display uppercase tracking-widest text-sm sm:text-lg py-2.5 sm:py-3.5 px-4 transition-all shadow-brutal hover:shadow-brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer text-center flex items-center justify-center gap-2"
         >
           <Camera class="w-5 h-5" />
-          <span>Gunakan Kamera Live</span>
+          <span>Pakai Kamera</span>
         </button>
-        
+        <span class="-mt-1 text-center font-sans text-[10px] sm:text-xs font-bold text-black/60 uppercase tracking-wider">
+          Jepret langsung dari HP/laptop
+        </span>
+
         <button
           @click="$emit('startUpload')"
           class="w-full bg-white hover:bg-neutral-100 text-black border-3 sm:border-4 border-black font-display uppercase tracking-widest text-sm sm:text-lg py-2.5 sm:py-3.5 px-4 transition-all shadow-brutal hover:shadow-brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer text-center flex items-center justify-center gap-2"
         >
           <FolderUp class="w-5 h-5" />
-          <span>Unggah dari Galeri</span>
+          <span>Pilih dari Galeri</span>
         </button>
-        
+        <span class="-mt-1 text-center font-sans text-[10px] sm:text-xs font-bold text-black/60 uppercase tracking-wider">
+          Gunakan foto yang sudah ada
+        </span>
+
         <button
           @click="$emit('cancelUpload')"
           class="w-full mt-1 text-black font-display uppercase tracking-wider text-xs sm:text-sm hover:text-primary transition-colors text-center"
         >
-          &larr; Ganti Bingkai Lain
+          &larr; Ganti Bingkai
         </button>
       </template>
 
@@ -119,7 +128,7 @@
           class="w-full bg-primary hover:bg-primary-dark text-white border-3 sm:border-4 border-black font-display uppercase tracking-widest text-base sm:text-2xl py-3 sm:py-4 px-4 transition-all shadow-brutal hover:shadow-brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer text-center flex items-center justify-center gap-2.5"
         >
           <Camera class="w-6 h-6" />
-          <span>AMBIL FOTO (3 DETIK)</span>
+          <span>AMBIL FOTO</span>
         </button>
 
         <button
@@ -148,7 +157,7 @@
           @click="$emit('confirmPhoto')"
           :class="['w-full border-3 sm:border-4 border-black font-display uppercase tracking-widest text-sm sm:text-xl py-2.5 sm:py-3.5 px-4 transition-all shadow-brutal hover:shadow-brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer text-center flex items-center justify-center gap-2', isAllCaptured ? 'bg-primary hover:bg-primary-dark text-white' : 'bg-black text-white']"
         >
-          <span>{{ isAllCaptured ? 'LIHAT HASIL PHOTOSTRIP' : 'SIMPAN & FOTO BERIKUTNYA' }}</span>
+          <span>{{ isAllCaptured ? 'LIHAT HASILNYA' : 'SIMPAN & FOTO LAGI' }}</span>
           <ArrowRight class="w-5 h-5" />
         </button>
 
@@ -157,7 +166,7 @@
           class="w-full bg-white hover:bg-neutral-100 text-black border-3 sm:border-4 border-black font-display uppercase tracking-widest text-xs sm:text-base py-2 px-4 shadow-brutal-sm transition-all text-center cursor-pointer flex items-center justify-center gap-2"
         >
           <RotateCcw class="w-4 h-4" />
-          <span>Jepret Ulang Slot Ini</span>
+          <span>Jepret Ulang</span>
         </button>
       </template>
 
@@ -170,7 +179,7 @@
           :class="uploadedCount === slotsCount ? 'bg-primary hover:bg-primary-dark text-white shadow-brutal hover:shadow-brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 cursor-pointer' : 'bg-neutral-300 text-neutral-500 cursor-not-allowed opacity-60 border-neutral-400'"
         >
           <Sparkles class="w-5 h-5" />
-          <span>{{ uploadedCount === slotsCount ? 'LIHAT HASIL PHOTOSTRIP' : `PILIH ${slotsCount - uploadedCount} FOTO LAGI` }}</span>
+          <span>{{ uploadedCount === slotsCount ? 'LIHAT HASILNYA' : `PILIH ${slotsCount - uploadedCount} FOTO LAGI` }}</span>
         </button>
 
         <button
@@ -195,7 +204,7 @@
           class="w-full bg-white hover:bg-neutral-100 text-black border-3 sm:border-4 border-black font-display uppercase tracking-widest text-sm sm:text-lg py-2.5 px-4 shadow-brutal cursor-pointer text-center flex items-center justify-center gap-2"
         >
           <FolderUp class="w-4 h-4" />
-          <span>Unggah File Saja</span>
+          <span>Pakai Foto dari Galeri</span>
         </button>
       </template>
 
@@ -206,7 +215,7 @@
         class="w-full bg-primary text-white border-3 sm:border-4 border-black font-display uppercase tracking-widest text-lg sm:text-2xl py-3 px-4 opacity-90 cursor-not-allowed text-center animate-pulse shadow-brutal flex items-center justify-center gap-2"
       >
         <Hourglass class="w-6 h-6 animate-spin" />
-        <span>HITUNG MUNDUR...</span>
+        <span>SIAP? PEGANG POSEMU...</span>
       </button>
 
       <!-- Capturing state -->
@@ -228,8 +237,11 @@
           class="w-full bg-black hover:bg-neutral-800 text-white border-3 sm:border-4 border-black font-display uppercase tracking-widest text-sm sm:text-lg py-2.5 sm:py-3.5 px-4 transition-all shadow-brutal hover:shadow-brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2.5 text-center"
         >
           <Download class="w-5 h-5" />
-          <span>UNDUH FOTO (HD PNG)</span>
+          <span>UNDUH FOTO</span>
         </button>
+        <span class="-mt-1 text-center font-sans text-[10px] sm:text-xs font-bold text-black/60 uppercase tracking-wider">
+          Simpan kualitas HD
+        </span>
 
         <!-- 2. Smart Share Button (WhatsApp / IG Story Native Share Sheet) -->
         <button
@@ -239,6 +251,9 @@
           <Share2 class="w-5 h-5" />
           <span>BAGIKAN FOTO</span>
         </button>
+        <span class="-mt-1 text-center font-sans text-[10px] sm:text-xs font-bold text-black/60 uppercase tracking-wider">
+          WhatsApp / Instagram
+        </span>
 
         <!-- 3. Copy Promotion Text & Link Button -->
         <button
@@ -246,17 +261,28 @@
           class="w-full bg-gold-light hover:bg-yellow-200 text-black border-2 sm:border-3 border-black font-display uppercase tracking-wider text-xs sm:text-sm py-2 px-3 transition-all shadow-brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 cursor-pointer flex items-center justify-center gap-2 text-center"
         >
           <Copy class="w-4 h-4" />
-          <span>Salin Teks & Link Promo</span>
+          <span>Salin Teks & Link</span>
         </button>
+        <span class="-mt-1 text-center font-sans text-[10px] sm:text-xs font-bold text-black/60 uppercase tracking-wider">
+          Bagikan ke teman
+        </span>
 
         <!-- 4. Retake / Start Over -->
-        <button
-          @click="$emit('retake')"
-          class="w-full mt-1 text-black font-display uppercase tracking-wider text-xs sm:text-sm hover:text-primary transition-colors text-center cursor-pointer flex items-center justify-center gap-1.5"
-        >
-          <RotateCcw class="w-3.5 h-3.5" />
-          <span>Foto Lagi / Ganti Bingkai</span>
-        </button>
+        <div class="flex gap-2 w-full">
+          <button
+            @click="$emit('retakeSame')"
+            class="flex-1 bg-white hover:bg-neutral-100 text-black border-3 sm:border-4 border-black font-display uppercase tracking-widest text-xs sm:text-sm py-2 px-3 shadow-brutal-sm transition-all text-center cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <RotateCcw class="w-3.5 h-3.5" />
+            <span>Foto Lagi</span>
+          </button>
+          <button
+            @click="$emit('retake')"
+            class="flex-1 bg-white hover:bg-neutral-100 text-black border-3 sm:border-4 border-black font-display uppercase tracking-widest text-xs sm:text-sm py-2 px-3 shadow-brutal-sm transition-all text-center cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <span>Ganti Bingkai</span>
+          </button>
+        </div>
       </template>
 
     </div>
@@ -285,6 +311,7 @@ defineEmits<{
   (e: 'startUpload'): void;
   (e: 'retry'): void;
   (e: 'retake'): void;
+  (e: 'retakeSame'): void;
   (e: 'download'): void;
   (e: 'share'): void;
   (e: 'copyCaption'): void;

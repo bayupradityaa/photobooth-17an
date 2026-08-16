@@ -1,26 +1,29 @@
+import { isAuthorizedAdmin, updateFrameNameById } from '../../utils/storage';
+
 export default defineEventHandler(async (event) => {
   const id = event.context.params?.id;
-  const env = (event.context as any).cloudflare?.env;
-  const processEnv = (globalThis as any).process?.env;
-  const adminPassword = env?.ADMIN_PASSWORD || processEnv?.ADMIN_PASSWORD;
-  const reqAdminPassword = getHeader(event, 'x-admin-password');
 
-  if (!adminPassword || reqAdminPassword !== adminPassword) {
+  if (!isAuthorizedAdmin(event)) {
     setResponseStatus(event, 401);
-    return { success: false, error: 'Unauthorized' };
+    return { success: false, error: 'Unauthorized: Akses ditolak' };
   }
 
-  if (!env || !env.DB || !id) {
-    return { success: false, error: 'Invalid context' };
+  if (!id) {
+    setResponseStatus(event, 400);
+    return { success: false, error: 'ID frame tidak ditemukan' };
   }
 
   try {
     const body = await readBody(event);
-    if (body.name) {
-      await env.DB.prepare('UPDATE frames SET name = ? WHERE id = ?').bind(body.name, id).run();
+    if (!body?.name) {
+      setResponseStatus(event, 400);
+      return { success: false, error: 'Nama frame baru wajib diisi' };
     }
-    return { success: true };
-  } catch (e) {
-    return { success: false };
+
+    const result = await updateFrameNameById(event, id, body.name);
+    return { success: result.success };
+  } catch (error: any) {
+    setResponseStatus(event, 500);
+    return { success: false, error: error.message };
   }
 });

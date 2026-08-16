@@ -1,42 +1,44 @@
+import { isAuthorizedAdmin, saveNewFrame } from '../utils/storage';
+
 export default defineEventHandler(async (event) => {
-  const env = (event.context as any).cloudflare?.env;
-  const processEnv = (globalThis as any).process?.env;
-  const adminPassword = env?.ADMIN_PASSWORD || processEnv?.ADMIN_PASSWORD;
-  const reqAdminPassword = getHeader(event, 'x-admin-password');
-
-  if (!adminPassword || reqAdminPassword !== adminPassword) {
+  if (!isAuthorizedAdmin(event)) {
     setResponseStatus(event, 401);
-    return { success: false, error: 'Unauthorized' };
-  }
-
-  if (!env || !env.DB || !env.BUCKET) {
-    return { success: false, error: 'Cloudflare bindings not found' };
+    return { success: false, error: 'Unauthorized: Akses ditolak' };
   }
 
   try {
     const body = await readBody(event);
-    const { id, name, canvasWidth, canvasHeight, slots, thumbnail } = body;
-    
-    // thumbnail contains the base64 string
-    const base64Data = thumbnail.replace(/^data:image\/\w+;base64,/, '');
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+    if (!body) {
+      setResponseStatus(event, 400);
+      return { success: false, error: 'Data request tidak valid' };
     }
-    
-    const image_key = `frame-${Date.now()}-${crypto.randomUUID().slice(0,6)}.png`;
 
-    await env.BUCKET.put(image_key, bytes.buffer, {
-      httpMetadata: { contentType: 'image/png' }
+    const { id, name, canvasWidth, canvasHeight, slots, thumbnail, src } = body;
+    const base64Image = thumbnail || src;
+
+    if (!name || !base64Image) {
+      setResponseStatus(event, 400);
+      return { success: false, error: 'Nama dan gambar template wajib diisi' };
+    }
+
+    const result = await saveNewFrame(event, {
+      id: id || `custom-frame-${Date.now()}`,
+      name: String(name).trim(),
+      canvasWidth: Number(canvasWidth) || 800,
+      canvasHeight: Number(canvasHeight) || 1200,
+      slots: Array.isArray(slots) ? slots : [],
+      base64Image
     });
 
-    await env.DB.prepare('INSERT INTO frames (id, name, canvasWidth, canvasHeight, slots, image_key) VALUES (?, ?, ?, ?, ?, ?)')
-      .bind(id, name, canvasWidth, canvasHeight, JSON.stringify(slots), image_key)
-      .run();
+    if (!result.success) {
+      setResponseStatus(event, 500);
+      return { success: false, error: result.error || 'Gagal menyimpan template' };
+    }
 
-    return { success: true, image_key };
-  } catch (error) {
-    return { success: false, error: 'Failed to save frame' };
+    return { success: true, image_key: result.image_key };
+  } catch (error: any) {
+    console.error('Error in POST /api/frames:', error);
+    setResponseStatus(event, 500);
+    return { success: false, error: error.message || 'Terjadi kesalahan internal server' };
   }
 });

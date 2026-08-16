@@ -22,7 +22,7 @@
     <div v-if="isFlashing" class="fixed inset-0 bg-white z-[9999] pointer-events-none animate-flash"></div>
 
     <!-- Show Loading Spinner while loading settings -->
-    <div v-if="loadingSettings || (!activeFrame && framesList.length === 0)" class="flex flex-col items-center justify-center min-h-[400px] w-full text-center">
+    <div v-if="loadingSettings" class="flex flex-col items-center justify-center min-h-[400px] w-full text-center">
       <div class="w-12 h-12 bg-primary border-4 border-black shadow-brutal animate-spin mb-6"></div>
       <p class="text-xl text-black font-display uppercase tracking-widest animate-pulse">Memuat Studio 17-an...</p>
     </div>
@@ -49,15 +49,23 @@
 
     <!-- Guard: no frames available at all -->
     <div v-else-if="framesList.length === 0" class="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 px-4 gap-4">
-      <div class="p-6 bg-white border-4 border-black shadow-brutal text-black text-left">
-        <h3 class="font-display uppercase tracking-widest text-xl border-b-3 border-black pb-2 mb-3">BELUM ADA BINGKAI</h3>
-        <p class="font-sans text-sm font-semibold">Admin belum menambahkan template bingkai. Silakan login ke halaman Admin untuk mengunggah template bingkai.</p>
+      <div class="p-6 bg-white border-4 border-black shadow-brutal text-black text-left space-y-3">
+        <h3 class="font-display uppercase tracking-widest text-xl border-b-3 border-black pb-2">BELUM ADA TEMPLATE BINGKAI</h3>
+        <p class="font-sans text-sm font-semibold text-black/80">
+          Template statis bawaan telah dinonaktifkan. Silakan login ke halaman Admin untuk mengunggah template bingkai custom PNG Anda.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <a href="/admin" class="bg-primary hover:bg-primary-dark text-white font-display uppercase tracking-widest px-5 py-2.5 border-3 border-black shadow-brutal text-center flex items-center justify-center gap-2">
+            <span>KE HALAMAN ADMIN &rarr;</span>
+          </a>
+          <a href="/" class="bg-white hover:bg-neutral-100 text-black font-display uppercase tracking-widest px-5 py-2.5 border-3 border-black shadow-brutal text-center flex items-center justify-center gap-2">
+            <ArrowLeft class="w-4 h-4" />
+            <span>KEMBALI</span>
+          </a>
+        </div>
       </div>
-      <a href="/" class="bg-black text-white border-3 border-black font-display uppercase tracking-widest px-6 py-2.5 shadow-brutal transition-all flex items-center justify-center gap-2">
-        <ArrowLeft class="w-4 h-4" />
-        <span>KEMBALI</span>
-      </a>
     </div>
+
 
     <!-- Step 1 Layout: Full-Screen Template Selection Grid -->
     <div v-else-if="isSelectFrame" class="flex flex-col items-center w-full max-w-5xl mx-auto px-2">
@@ -70,7 +78,7 @@
           Pilih Bingkai <span class="text-primary">17 Agustus</span>
         </h1>
         <p class="text-xs sm:text-base text-black/80 font-sans font-semibold px-4">
-          Pilih template bingkai eksklusif bertema Kemerdekaan RI ke-81 favoritmu.
+          Mau gaya yang mana? Pilih bingkai, lalu kita lanjut foto!
         </p>
       </div>
 
@@ -123,7 +131,7 @@
           @click="state.status = 'SELECT_INPUT_MODE'"
           class="w-full bg-primary hover:bg-primary-dark text-white border-4 border-black font-display uppercase tracking-widest text-lg sm:text-2xl py-3 sm:py-4 px-8 transition-all shadow-brutal hover:shadow-brutal-sm active:translate-x-1 active:translate-y-1 cursor-pointer text-center flex items-center justify-center gap-2.5"
         >
-          <span>LANJUTKAN KE KAMERA</span>
+          <span>LANJUT FOTO</span>
           <ArrowRight class="w-6 h-6" />
         </button>
       </div>
@@ -136,7 +144,7 @@
           Studio Photobooth
         </h1>
         <p class="hidden sm:block text-xs sm:text-sm text-black/80 font-sans font-semibold">
-          Bingkai: <span class="text-primary font-bold">{{ activeFrame?.name }}</span> ({{ activeFrame?.slots.length }} Slot Foto)
+          Bingkai: <span class="text-primary font-bold">{{ activeFrame?.name }}</span> • {{ activeFrame?.slots.length }} Foto
         </p>
       </div>
 
@@ -148,20 +156,32 @@
           <!-- Guide Box for Input Mode Selection -->
           <div v-if="isSelectInput" class="bg-white p-5 border-4 border-black text-left w-full max-w-sm shadow-brutal relative">
             <div class="absolute -top-3.5 left-4 bg-black text-gold-light px-2.5 py-0.5 font-display tracking-widest uppercase text-xs border-2 border-black">
-              Panduan Foto
+              Biar Hasilnya Mantap
             </div>
             <ul class="text-black font-sans text-xs sm:text-sm space-y-3 font-semibold mt-2">
               <li class="flex gap-2.5 border-b border-black/10 pb-2">
                 <span class="font-display text-lg text-primary">1</span>
-                <span>Pilih <strong>Kamera Live</strong> untuk selfie langsung atau <strong>Unggah File</strong> dari galeri HP.</span>
+                <span>
+                  <span class="font-bold uppercase tracking-wide text-black">Siapkan Pose</span>
+                  <br/>
+                  Gunakan kamera HP/laptop atau pilih foto dari galeri.
+                </span>
               </li>
               <li class="flex gap-2.5 border-b border-black/10 pb-2">
                 <span class="font-display text-lg text-primary">2</span>
-                <span>Hitung mundur 3 detik akan otomatis berjalan sebelum kamera menjepret.</span>
+                <span>
+                  <span class="font-bold uppercase tracking-wide text-black">Senyum Dulu!</span>
+                  <br/>
+                  Hitung mundur 3 detik, lalu kamera otomatis mengambil foto.
+                </span>
               </li>
               <li class="flex gap-2.5">
                 <span class="font-display text-lg text-primary">3</span>
-                <span>Kamu bisa menyesuaikan zoom dan posisi foto di setiap slot.</span>
+                <span>
+                  <span class="font-bold uppercase tracking-wide text-black">Atur Sesukamu</span>
+                  <br/>
+                  Sesuaikan posisi dan zoom sebelum lanjut ke foto berikutnya.
+                </span>
               </li>
             </ul>
           </div>
@@ -190,20 +210,20 @@
           <!-- Review Tips Box (Desktop) -->
           <div v-else class="bg-white p-5 border-4 border-black text-left w-full max-w-sm shadow-brutal relative">
             <div class="absolute -top-3.5 left-4 bg-primary text-white px-2.5 py-0.5 font-display tracking-widest uppercase text-xs border-2 border-black">
-              Opsi Berbagi
+              Simpan Momenmu
             </div>
             <ul class="text-black font-sans text-xs sm:text-sm space-y-3 font-semibold mt-2">
               <li class="flex gap-2.5 border-b border-black/10 pb-2 items-center">
                 <Download class="w-5 h-5 text-primary shrink-0" />
-                <span>Klik <strong>UNDUH FOTO</strong> untuk menyimpan file PNG resolusi tinggi ke galeri.</span>
+                <span>Unduh hasil HD, langsung ke galeri HP.</span>
               </li>
               <li class="flex gap-2.5 border-b border-black/10 pb-2 items-center">
                 <Share2 class="w-5 h-5 text-primary shrink-0" />
-                <span>Klik <strong>BAGIKAN FOTO</strong> untuk langsung membuka WhatsApp atau Instagram Story di HP.</span>
+                <span>Bagikan ke WhatsApp atau Instagram Story.</span>
               </li>
               <li class="flex gap-2.5 items-center">
                 <ShieldCheck class="w-5 h-5 text-primary shrink-0" />
-                <span>Foto tersimpan aman di perangkatmu tanpa dipublikasikan ke orang lain.</span>
+                <span>Foto kamu tetap di perangkatmu, nggak tampil publik.</span>
               </li>
             </ul>
           </div>
@@ -244,6 +264,9 @@
               class="w-full max-w-[280px] h-auto md:max-w-none md:max-h-[72vh] border-4 sm:border-6 border-black shadow-brutal-lg bg-white transition-transform hover:scale-[1.02] duration-300 mx-auto"
               :style="{ aspectRatio: `${activeFrame?.canvasWidth} / ${activeFrame?.canvasHeight}` }"
             ></canvas>
+            <p class="font-sans text-xs sm:text-sm font-bold text-black/70 text-center mt-3 sm:mt-4 px-2">
+              Merdeka! 🇮🇩 Momen ini resmi jadi kenangan Pesona Cilebut 1.
+            </p>
           </div>
 
           <!-- Desktop Interactive Strip Preview -->
@@ -319,6 +342,7 @@
             @startUpload="startUploadSequence"
             @retry="retryPhoto"
             @retake="handleRetake"
+            @retakeSame="retakeSameFrame"
             @download="handleDownload"
             @share="handleShare"
             @copyCaption="handleCopyCaption"
@@ -450,7 +474,7 @@ const showToast = (msg: string, duration = 4000) => {
 
 const getPromoCaption = () => {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  return `Saya sudah berfoto di Photobooth HUT RI ke-81 Pesona Cilebut 1!\nTema: "Indonesia Berdaulat, Adil, dan Makmur"\nYuk cobain dan abadikan momen 17-an kamu juga di: ${origin}`;
+  return `Baru aja foto 17-an di Photobooth HUT RI ke-81 Pesona Cilebut 1!\nYuk abadikan seru-seruan momen kemerdekaanmu juga di: ${origin}`;
 };
 
 onMounted(async () => {
@@ -460,9 +484,9 @@ onMounted(async () => {
       photoboothService.getFrames()
     ]);
     settings.value = data;
-    if (framesData && framesData.length > 0) {
+    if (framesData && framesData.length > 0 && framesData[0]) {
       framesList.value = framesData;
-      state.activeFrameId = framesData[0].id;
+      state.activeFrameId = framesData[0].id || '';
     }
   } catch (err) {
     console.error("Gagal memuat data:", err);
@@ -663,6 +687,18 @@ const handleRetake = () => {
   state.inputMode = null;
 };
 
+const retakeSameFrame = () => {
+  const slotsCount = activeFrame.value ? activeFrame.value.slots.length : 4;
+  state.capturedPhotos = Array(slotsCount).fill("");
+  state.photoScales = Array(slotsCount).fill(1.0);
+  state.photoOffsetsX = Array(slotsCount).fill(0);
+  state.photoOffsetsY = Array(slotsCount).fill(0);
+  state.photoIndex = 0;
+  state.countdown = 0;
+  state.inputMode = null;
+  state.status = "SELECT_INPUT_MODE";
+};
+
 // 1. Direct Download Handler (HD PNG Client-side)
 const handleDownload = () => {
   if (!canvasRef.value) return;
@@ -741,7 +777,7 @@ const handleShare = async () => {
       // clipboard fallback
     }
 
-    showToast("Foto terunduh & teks promo berhasil disalin! Kamu bisa langsung upload di Status WA / IG Story.");
+    showToast("Foto ke-download & teks ke-salin. Tinggal upload di WA/IG Story!");
     state.status = "REVIEW";
   }, "image/png");
 };
@@ -752,7 +788,7 @@ const handleCopyCaption = async () => {
   try {
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(caption);
-      showToast("Teks promosi & link berhasil disalin ke clipboard!");
+      showToast("Teks & link ke-salin ke clipboard!");
     } else {
       showToast("Link acara: " + window.location.origin);
     }

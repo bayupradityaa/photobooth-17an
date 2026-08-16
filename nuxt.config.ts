@@ -51,7 +51,7 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Photobooth Virtual Peringatan HUT ke-81 Kemerdekaan RI 2026: Indonesia Berdaulat, Adil, dan Makmur. Abadikan momen pesta kemerdekaan warga Pesona Cilebut 1.' },
         { name: 'theme-color', content: '#DC2626' },
         { property: 'og:title', content: 'Photobooth HUT RI ke-81 - Pesona Cilebut 1' },
-        { property: 'og:description', content: 'Rayakan Kemerdekaan RI ke-81! Buat foto bertema 17 Agustus eksklusif warga Pesona Cilebut 1.' },
+        { property: 'og:description', content: 'Abadikan momen 17-an bareng warga Pesona Cilebut 1. Pilih bingkai, jepret, simpan, bagikan!' },
         { property: 'og:type', content: 'website' }
       ],
       link: [
@@ -68,6 +68,6 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
-    preset: 'cloudflare-pages'
+    // Otomatis mendeteksi provider (Netlify, Vercel, Cloudflare Pages, atau Node)
   }
 })

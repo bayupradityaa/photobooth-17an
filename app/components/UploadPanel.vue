@@ -4,7 +4,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 font-display uppercase tracking-widest text-black text-xs sm:text-sm border-b-2 sm:border-b-3 border-black pb-2 sm:pb-3">
       <div class="flex items-center gap-1.5">
         <FolderUp class="w-4 h-4 text-black shrink-0" />
-        <span>UNGGAH {{ slotsCount }} FOTO</span>
+        <span>PILIH {{ slotsCount }} FOTO</span>
       </div>
 
       <!-- Bulk Multi-Upload Button -->

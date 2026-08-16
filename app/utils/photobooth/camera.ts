@@ -4,7 +4,7 @@ export async function startCamera(maxAttempts = 3): Promise<MediaStream> {
   }
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    throw new Error("Browser Anda tidak mendukung akses kamera (pastikan menggunakan koneksi HTTPS atau localhost).");
+    throw new Error("Browser kamu nggak mendukung akses kamera (butuh HTTPS atau localhost).");
   }
 
   // Progressive constraint fallbacks from strict to basic
@@ -44,7 +44,7 @@ export async function startCamera(maxAttempts = 3): Promise<MediaStream> {
       console.warn(`[Camera] Access attempt ${attempt}/${maxAttempts} failed:`, err?.name || err?.message || err);
 
       if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
-        throw new Error("Akses kamera diblokir oleh browser. Silakan klik ikon gembok/kamera di sebelah URL browser Anda dan pilih 'Izinkan' (Allow).");
+        throw new Error("Kamera diblokir browser. Klik ikon gembok/kamera di URL, lalu pilih 'Izinkan' (Allow).");
       }
 
       if (attempt < maxAttempts) {
@@ -54,7 +54,7 @@ export async function startCamera(maxAttempts = 3): Promise<MediaStream> {
   }
 
   throw new Error(
-    lastError?.message || "Gagal mengaktifkan kamera setelah 3 kali percobaan. Silakan periksa apakah webcam sedang digunakan aplikasi lain."
+    lastError?.message || "Kamera gagal dibuka setelah 3 kali coba. Cek apakah webcam lagi dipakai aplikasi lain."
   );
 }
 

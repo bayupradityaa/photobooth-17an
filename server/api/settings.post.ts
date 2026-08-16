@@ -1,26 +1,33 @@
+import { isAuthorizedAdmin, saveSiteSettings } from '../utils/storage';
+
 export default defineEventHandler(async (event) => {
-  const env = (event.context as any).cloudflare?.env;
-  const processEnv = (globalThis as any).process?.env;
-  const adminPassword = env?.ADMIN_PASSWORD || processEnv?.ADMIN_PASSWORD;
-  const reqAdminPassword = getHeader(event, 'x-admin-password');
-
-  if (!adminPassword || reqAdminPassword !== adminPassword) {
+  if (!isAuthorizedAdmin(event)) {
     setResponseStatus(event, 401);
-    return { success: false, error: 'Unauthorized' };
+    return { success: false, error: 'Unauthorized: Akses ditolak' };
   }
 
-  if (!env || !env.DB) {
-    return { success: false, error: 'DB binding missing' };
-  }
   try {
     const body = await readBody(event);
+    if (!body) {
+      setResponseStatus(event, 400);
+      return { success: false, error: 'Data request tidak valid' };
+    }
+
     const { active, maintenanceMessage, activeEventName } = body;
-    
-    await env.DB.prepare('UPDATE settings SET active = ?, maintenanceMessage = ?, activeEventName = ? WHERE id = ?')
-      .bind(active ? 1 : 0, maintenanceMessage || '', activeEventName || '', 'global')
-      .run();
+    const result = await saveSiteSettings(event, {
+      active: Boolean(active),
+      maintenanceMessage: String(maintenanceMessage || ''),
+      activeEventName: String(activeEventName || '')
+    });
+
+    if (!result.success) {
+      setResponseStatus(event, 500);
+      return { success: false, error: result.error || 'Gagal menyimpan pengaturan' };
+    }
+
     return { success: true };
-  } catch (error) {
-    return { success: false, error: 'Database error' };
+  } catch (error: any) {
+    setResponseStatus(event, 500);
+    return { success: false, error: error.message };
   }
 });

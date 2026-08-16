@@ -41,13 +41,13 @@
       <div v-if="!showVideo && !confirmPhoto" class="flex flex-col items-center justify-center p-4 sm:p-8 text-center text-white font-sans absolute inset-0 bg-[#18181B]">
         <div v-if="state === 'REQUESTING_CAMERA'" class="flex flex-col items-center gap-3">
           <div class="w-8 h-8 sm:w-10 sm:h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p class="font-bold text-xs sm:text-sm">Menghubungkan ke kamera...</p>
+          <p class="font-bold text-xs sm:text-sm">Nyalain kamera dulu...</p>
         </div>
         <div v-else-if="state === 'CAMERA_ERROR'" class="flex flex-col items-center gap-2 sm:gap-3 text-white">
           <AlertTriangle class="w-8 h-8 text-primary" />
-          <p class="font-bold text-xs sm:text-sm text-primary-light">Akses Kamera Gagal</p>
+          <p class="font-bold text-xs sm:text-sm text-primary-light">Kamera Gagal Dibuka</p>
           <p class="text-[10px] sm:text-xs text-white/70 max-w-[250px] leading-relaxed">
-            Pastikan izin kamera diizinkan di browser Anda, atau gunakan opsi Unggah File.
+            Izinkan akses kamera di browser, atau pilih foto dari galeri.
           </p>
         </div>
         <div v-else class="flex flex-col items-center gap-2 sm:gap-3">
@@ -55,7 +55,7 @@
             <Camera class="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
           <p class="font-bold text-xs sm:text-sm">Kamera Siap</p>
-          <p class="text-[10px] sm:text-xs text-white/60 leading-relaxed">Tekan tombol Ambil Foto untuk memulai.</p>
+          <p class="text-[10px] sm:text-xs text-white/60 leading-relaxed">Siap? Tekan tombol Ambil Foto.</p>
         </div>
       </div>
 

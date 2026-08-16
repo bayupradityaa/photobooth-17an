@@ -34,7 +34,7 @@
       <div class="inline-flex items-center gap-2 bg-gold-light border-3 border-black px-3 sm:px-4 py-1 mb-3 sm:mb-4 shadow-brutal-sm">
         <Flag class="w-3.5 h-3.5 text-primary fill-primary animate-bounce" />
         <span class="font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider text-black">
-          Pesta Kemerdekaan RI ke-81 • RT 01 / RW 08
+          Pesta Kemerdekaan RI ke-81 • RT 01–08 / RW 13
         </span>
       </div>
 
@@ -50,54 +50,97 @@
     <!-- Main Content Area -->
     <main class="flex-1 max-w-6xl w-full mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center my-6 z-10">
       
-      <!-- Left Column: Interactive 3D Tilt Photostrip Preview -->
-      <div class="lg:col-span-5 flex justify-center relative">
-        <div class="relative bg-black p-3 sm:p-4 pb-14 sm:pb-16 rotate-[-3deg] hover:rotate-0 transition-transform duration-500 shadow-brutal-lg w-56 sm:w-64 border-4 border-black"
-             style="border-image: radial-gradient(circle, #FDFBF7 4px, transparent 5px) 8 stretch;">
-          
+      <!-- Left Column: Dynamic Rolling Template Preview -->
+      <div class="lg:col-span-5 flex flex-col items-center justify-center relative">
+        <div
+          class="relative bg-black p-3 sm:p-4 pb-12 sm:pb-14 rotate-[-3deg] hover:rotate-0 transition-transform duration-500 shadow-brutal-lg w-60 sm:w-72 border-4 border-black group cursor-pointer"
+          style="border-image: radial-gradient(circle, #FDFBF7 4px, transparent 5px) 8 stretch;"
+          @mouseenter="pauseAutoRoll"
+          @mouseleave="resumeAutoRoll"
+          @click="startStudio"
+        >
           <!-- Polka dot halftone bg -->
           <div class="absolute inset-0 pointer-events-none opacity-20 bg-halftone-white"></div>
           
           <!-- Top Tag in Strip -->
-          <div class="bg-primary text-white text-center py-1 font-display text-xs uppercase tracking-widest border-2 border-white mb-2 relative z-10">
-            HUT RI KE-81 • 2026
+          <div class="bg-primary text-white text-center py-1 font-display text-xs uppercase tracking-widest border-2 border-white mb-2 relative z-10 flex items-center justify-center gap-1.5">
+            <span class="truncate max-w-[200px]">{{ currentFrame ? currentFrame.name : 'HUT RI KE-81 • 2026' }}</span>
           </div>
 
-          <!-- Photo slots simulation with patriotic illustrations -->
-          <div class="space-y-2 relative z-10">
-            <div class="bg-[#1e1e24] aspect-[4/3] w-full border-2 border-white/40 flex flex-col items-center justify-center p-2 text-center text-white relative overflow-hidden">
-              <Flag class="w-6 h-6 text-primary fill-primary mb-1" />
-              <span class="font-display text-xs uppercase tracking-wider text-gold-light">Senyum Merdeka</span>
-              <span class="font-sans text-[9px] text-white/70 font-bold">Slot Foto #1</span>
-            </div>
-            
-            <div class="bg-[#1e1e24] aspect-[4/3] w-full border-2 border-white/40 flex flex-col items-center justify-center p-2 text-center text-white relative overflow-hidden">
-              <Sparkles class="w-6 h-6 text-gold-light mb-1" />
-              <span class="font-display text-xs uppercase tracking-wider text-gold-light">Semangat 17-an</span>
-              <span class="font-sans text-[9px] text-white/70 font-bold">Slot Foto #2</span>
-            </div>
+          <!-- Photo slots simulation with patriotic illustrations and active template overlay -->
+          <div class="relative w-full overflow-hidden border-2 border-white/40 bg-[#1e1e24] shadow-inner z-10 flex items-center justify-center min-h-[300px]">
+            <transition name="frame-slide" mode="out-in">
+              <div
+                v-if="currentFrame"
+                :key="currentFrame.id"
+                class="relative w-full flex items-center justify-center overflow-hidden"
+                :style="{ aspectRatio: `${currentFrame.canvasWidth} / ${currentFrame.canvasHeight}` }"
+              >
+                <!-- Mock Photos Behind the Transparent Slots -->
+                <div
+                  v-for="(slot, sIdx) in currentFrame.slots"
+                  :key="sIdx"
+                  class="absolute bg-gradient-to-br from-[#2a2a35] to-[#121216] border border-white/20 flex flex-col items-center justify-center p-1 text-center text-white overflow-hidden shadow-sm"
+                  :style="{
+                    left: `${(slot.x / currentFrame.canvasWidth) * 100}%`,
+                    top: `${(slot.y / currentFrame.canvasHeight) * 100}%`,
+                    width: `${(slot.width / currentFrame.canvasWidth) * 100}%`,
+                    height: `${(slot.height / currentFrame.canvasHeight) * 100}%`
+                  }"
+                >
+                  <component :is="getSlotIcon(sIdx)" class="w-4 h-4 sm:w-5 sm:h-5 text-gold-light mb-0.5 shrink-0" />
+                  <span class="font-display text-[9px] sm:text-[11px] uppercase tracking-wider text-gold-light leading-tight">
+                    {{ getSlotTitle(sIdx) }}
+                  </span>
+                  <span class="font-sans text-[7px] sm:text-[9px] text-white/70 font-bold">Slot #{{ sIdx + 1 }}</span>
+                </div>
 
-            <div class="bg-[#1e1e24] aspect-[4/3] w-full border-2 border-white/40 flex flex-col items-center justify-center p-2 text-center text-white relative overflow-hidden">
-              <Trophy class="w-6 h-6 text-gold-light mb-1" />
-              <span class="font-display text-xs uppercase tracking-wider text-gold-light">Pesona Cilebut 1</span>
-              <span class="font-sans text-[9px] text-white/70 font-bold">Slot Foto #3</span>
-            </div>
+                <!-- Real Frame Image Overlay -->
+                <img
+                  :src="currentFrame.thumbnail || currentFrame.src"
+                  :alt="currentFrame.name"
+                  class="absolute inset-0 w-full h-full object-contain pointer-events-none z-10"
+                />
+              </div>
+
+              <!-- Fallback placeholder when no frames uploaded yet -->
+              <div v-else key="empty" class="p-6 text-center text-white space-y-2 flex flex-col items-center justify-center">
+                <Camera class="w-10 h-10 text-gold-light mb-1" />
+                <p class="font-display text-sm uppercase tracking-wider">Studio 17-an</p>
+                <p class="font-sans text-[11px] text-white/70">Klik untuk mulai berfoto</p>
+              </div>
+            </transition>
           </div>
           
           <!-- Bottom Strip Label -->
-          <div class="absolute bottom-2 sm:bottom-4 left-0 right-0 text-center text-gold-light font-display tracking-[0.25em] text-xs">
-            INDONESIA MAJU
+          <div class="absolute bottom-2 sm:bottom-3 left-0 right-0 text-center text-gold-light font-display tracking-[0.2em] text-[11px] uppercase flex items-center justify-center gap-1.5">
+            <span>{{ currentFrame ? `${currentFrame.slots.length} SLOT FOTO` : 'INDONESIA MAJU' }}</span>
           </div>
           
           <!-- Floating 81 Years Medal Badge with Official Logo -->
-          <div class="absolute -top-6 -right-6 sm:-top-7 sm:-right-7 w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center p-2 shadow-brutal transform rotate-12 border-4 border-black z-20 animate-bounce" style="animation-duration: 3s;">
+          <div class="absolute -top-5 -right-5 sm:-top-6 sm:-right-6 w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center p-1.5 shadow-brutal transform rotate-12 border-3 border-black z-20 animate-bounce" style="animation-duration: 3s;">
             <img src="/logomerah81.png" alt="Logo HUT RI 81" class="w-full h-full object-contain" />
           </div>
 
           <!-- Left Ribbon -->
-          <div class="absolute -bottom-4 -left-4 bg-primary text-white font-display text-[10px] sm:text-xs px-3 py-1 border-2 border-black shadow-brutal-sm transform -rotate-6 z-20">
+          <div class="absolute -bottom-3 -left-3 bg-primary text-white font-display text-[10px] px-2.5 py-0.5 border-2 border-black shadow-brutal-sm transform -rotate-6 z-20">
             MERDEKA!
           </div>
+        </div>
+
+        <!-- Carousel Indicators (if multiple frames available) -->
+        <div v-if="frames.length > 1" class="mt-4 flex items-center gap-2 z-20 bg-white border-2 border-black px-3 py-1.5 shadow-brutal-sm">
+          <button
+            v-for="(f, idx) in frames"
+            :key="f.id"
+            @click.stop="selectFrameIndex(idx)"
+            class="w-2.5 h-2.5 rounded-full border border-black transition-all cursor-pointer"
+            :class="idx === currentFrameIndex ? 'bg-primary scale-125 ring-1 ring-primary' : 'bg-neutral-200 hover:bg-neutral-400'"
+            :title="f.name"
+          />
+          <span class="font-display text-[10px] sm:text-xs text-black ml-1 uppercase tracking-wider">
+            {{ currentFrameIndex + 1 }} / {{ frames.length }}
+          </span>
         </div>
       </div>
 
@@ -112,7 +155,7 @@
           </h2>
           
           <p class="font-sans font-medium text-black/80 text-sm sm:text-base leading-relaxed mb-5">
-            Sambut semarak peringatan <strong>HUT ke-81 Kemerdekaan Republik Indonesia</strong>! Buat photostrip bertema 17 Agustus eksklusif warga Pesona Cilebut 1 langsung dari HP atau Laptop Anda.
+            Siap bikin foto 17-an yang nggak cuma jadi kenangan? Pilih bingkai favoritmu, ambil foto, lalu simpan hasilnya ke HP.
           </p>
 
           <!-- Feature Badges Grid -->
@@ -120,32 +163,32 @@
             <div class="bg-[#FDFBF7] border-2 border-black p-2.5 flex items-center gap-2.5">
               <Palette class="w-5 h-5 text-primary shrink-0" />
               <div>
-                <p class="font-display text-xs sm:text-sm uppercase text-black leading-tight">4 Template Bingkai</p>
-                <p class="font-sans text-[10px] text-black/60 font-bold">Pilihan Tema 17-an</p>
+                <p class="font-display text-xs sm:text-sm uppercase text-black leading-tight">Pilihan Bingkai</p>
+                <p class="font-sans text-[10px] text-black/60 font-bold">Tema Kemerdekaan RI</p>
               </div>
             </div>
 
             <div class="bg-[#FDFBF7] border-2 border-black p-2.5 flex items-center gap-2.5">
               <ShieldCheck class="w-5 h-5 text-primary shrink-0" />
               <div>
-                <p class="font-display text-xs sm:text-sm uppercase text-black leading-tight">100% Privasi Aman</p>
-                <p class="font-sans text-[10px] text-black/60 font-bold">Tanpa Galeri Publik</p>
+                <p class="font-display text-xs sm:text-sm uppercase text-black leading-tight">Foto Tetap di Perangkatmu</p>
+                <p class="font-sans text-[10px] text-black/60 font-bold">Nggak tampil publik</p>
               </div>
             </div>
 
             <div class="bg-[#FDFBF7] border-2 border-black p-2.5 flex items-center gap-2.5">
               <Share2 class="w-5 h-5 text-primary shrink-0" />
               <div>
-                <p class="font-display text-xs sm:text-sm uppercase text-black leading-tight">Share Instan</p>
-                <p class="font-sans text-[10px] text-black/60 font-bold">Langsung ke Status WA/IG</p>
+                <p class="font-display text-xs sm:text-sm uppercase text-black leading-tight">Langsung Bagikan</p>
+                <p class="font-sans text-[10px] text-black/60 font-bold">Kirim ke WhatsApp atau Instagram</p>
               </div>
             </div>
 
             <div class="bg-[#FDFBF7] border-2 border-black p-2.5 flex items-center gap-2.5">
               <Sparkles class="w-5 h-5 text-primary shrink-0" />
               <div>
-                <p class="font-display text-xs sm:text-sm uppercase text-black leading-tight">HD Quality Export</p>
-                <p class="font-sans text-[10px] text-black/60 font-bold">Siap Cetak & Pasang</p>
+                <p class="font-display text-xs sm:text-sm uppercase text-black leading-tight">Hasil HD</p>
+                <p class="font-sans text-[10px] text-black/60 font-bold">Siap disimpan & dibagikan</p>
               </div>
             </div>
           </div>
@@ -154,11 +197,11 @@
           <button @click="startStudio" 
                   class="group w-full bg-primary hover:bg-primary-dark text-white p-4 sm:p-5 border-4 border-black shadow-brutal hover:shadow-brutal-sm hover:translate-x-1 hover:translate-y-1 active:translate-x-1.5 active:translate-y-1.5 active:shadow-none transition-all flex flex-col items-center text-center cursor-pointer">
             <span class="font-display text-3xl sm:text-4xl md:text-5xl leading-none uppercase tracking-wider flex items-center gap-3">
-              <span>MULAI BERFOTO SEKARANG</span>
+              <span>AYO, FOTO SEKARANG</span>
               <ArrowRight class="w-8 h-8 group-hover:translate-x-1 transition-transform" />
             </span>
             <span class="font-sans text-xs sm:text-sm font-extrabold uppercase tracking-widest text-gold-light mt-2 border-t-2 border-white/30 pt-2 w-full">
-              Pilih Bingkai & Tangkap Momen Kemerdekaan
+              Pilih bingkai • Jepret • Download • Bagikan
             </span>
           </button>
         </div>
@@ -167,7 +210,7 @@
         <div class="bg-gold-light/40 border-3 border-black p-3.5 flex items-center gap-3 shadow-brutal-sm">
           <Award class="w-6 h-6 text-primary shrink-0" />
           <p class="font-sans text-xs sm:text-sm font-bold text-black leading-snug">
-            Diselenggarakan oleh <strong>Panitia Pesta Rakyat RT 01/RW 08 Pesona Cilebut 1</strong>. Foto Anda diproses di perangkat masing-masing dan tidak dipublikasikan ke orang lain.
+            Diselenggarakan oleh <strong>Panitia Pesta Rakyat RT 01–08 / RW 13 Pesona Cilebut 1</strong>. Foto kamu diproses di perangkatmu dan nggak tampil publik.
           </p>
         </div>
 
@@ -186,8 +229,9 @@
         </p>
         <div class="border-t-2 border-black/10 pt-3 mt-3 flex flex-col sm:flex-row justify-between items-center text-[11px] font-sans font-bold text-black/60 gap-2">
           <span>HUT RI ke-81 • 17 Agustus 2026</span>
-          <span>Pesona Cilebut 1 • Indonesia Berdaulat, Adil, dan Makmur</span>
+          <span>Pesona Cilebut 1 • Bogor</span>
           <span>Photobooth Virtual Warga</span>
+          <span>Dibuat oleh Bayu Praditya</span>
         </div>
       </div>
     </footer>
@@ -222,13 +266,93 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Camera, Flag, Sparkles, ArrowRight, ArrowLeft, Palette, ShieldCheck, Share2, Award, Trophy } from 'lucide-vue-next';
 import PhotoboothStudio from '~/components/PhotoboothStudio.vue';
+import { photoboothService } from '~/services/photoboothService';
+import type { FrameConfig } from '~/utils/photobooth/types';
 
 const isStudioActive = ref(false);
+const frames = ref<FrameConfig[]>([]);
+const currentFrameIndex = ref(0);
+let autoRollTimer: any = null;
+
+const currentFrame = computed(() => {
+  if (frames.value.length === 0) return null;
+  return frames.value[currentFrameIndex.value] || frames.value[0] || null;
+});
 
 const startStudio = () => {
   isStudioActive.value = true;
 };
+
+const getSlotIcon = (index: number) => {
+  const icons = [Flag, Sparkles, Trophy, Camera, Award, ShieldCheck];
+  return icons[index % icons.length];
+};
+
+const getSlotTitle = (index: number) => {
+  const titles = ['Senyum Merdeka', 'Semangat 17-an', 'Pesona Cilebut', 'Warga Merdeka', 'Pesta Rakyat'];
+  return titles[index % titles.length];
+};
+
+const startAutoRoll = () => {
+  stopAutoRoll();
+  if (frames.value.length > 1) {
+    autoRollTimer = setInterval(() => {
+      currentFrameIndex.value = (currentFrameIndex.value + 1) % frames.value.length;
+    }, 3800);
+  }
+};
+
+const stopAutoRoll = () => {
+  if (autoRollTimer) {
+    clearInterval(autoRollTimer);
+    autoRollTimer = null;
+  }
+};
+
+const pauseAutoRoll = () => {
+  stopAutoRoll();
+};
+
+const resumeAutoRoll = () => {
+  startAutoRoll();
+};
+
+const selectFrameIndex = (idx: number) => {
+  currentFrameIndex.value = idx;
+  startAutoRoll();
+};
+
+onMounted(async () => {
+  try {
+    const data = await photoboothService.getFrames();
+    frames.value = data || [];
+    if (frames.value.length > 1) {
+      startAutoRoll();
+    }
+  } catch (e) {
+    console.error('Error fetching frames for home preview:', e);
+  }
+});
+
+onUnmounted(() => {
+  stopAutoRoll();
+});
 </script>
+
+<style scoped>
+.frame-slide-enter-active,
+.frame-slide-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.frame-slide-enter-from {
+  opacity: 0;
+  transform: scale(0.95) translateY(6px);
+}
+.frame-slide-leave-to {
+  opacity: 0;
+  transform: scale(1.05) translateY(-6px);
+}
+</style>
